@@ -1,4 +1,6 @@
-﻿namespace OhMyDearGpnu.Api
+﻿using OhMyDearGpnu.Api.Request;
+
+namespace OhMyDearGpnu.Api
 {
     public class GpnuClient
     {
@@ -21,14 +23,14 @@
 
         public async Task Login(string username, string password, Captcha captcha)
         {
-
+            var req = new LoginRequest(username, password, captcha);
         }
 
         public async Task<Captcha> CreateCaptchaAsync()
         {
             var timestamp = (DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString();
             var req = new HttpRequestMessage(HttpMethod.Get, $"jwglxt/kaptcha?time={timestamp}");
-            var res = await SendRequest(req);
+            var res = await SendRequestMessage(req);
             res.EnsureSuccessStatusCode();
             MemoryStream? ms = null;
             try
@@ -45,13 +47,18 @@
             return new Captcha(timestamp, ms);
         }
 
+        public async Task SendRequest(BaseRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Low Level
         public void SetFormContent(HttpRequestMessage request, IEnumerable<KeyValuePair<string, string>> items)
         {
             request.Content = new FormUrlEncodedContent(items);
         }
 
-        public async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestMessage(HttpRequestMessage request)
         {
             if (request.RequestUri?.Host != "jwglxt.gpnu.edu.cn")
                 throw new UriFormatException("Host must gpnu");

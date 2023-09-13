@@ -6,7 +6,12 @@ namespace OhMyDearGpnu.Api.Request
     {
         public abstract string Uri { get; }
 
-        public virtual IEnumerable<KeyValuePair<string, string>> GetFormItems(PageCacheManager? cachePageManager)
+        public async Task FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
+        {
+
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> GetFormItems(SimpleServiceContainer serviceContainer)
         {
             var infos = GetType().GetFields()
                 .Select(field => (field: field, attributes: field.GetCustomAttributes().ToArray()))
@@ -21,25 +26,18 @@ namespace OhMyDearGpnu.Api.Request
                     continue;
 
                 var value = valueObj.ToString();
-                var itemName = info.field.Name;
-                foreach (var attribute in info.attributes)
-                {
-                    switch (attribute)
-                    {
-                        case FormItemAttribute formItem:
-                            itemName = formItem.name;
-                            break;
-                        case FromPageHiddenAttribute fromPageHidden:
-                            if (cachePageManager == null)
-                                continue;
+                var itemName = ((FormItemAttribute)info.attributes.First(attr => attr.GetType() == typeof(FormItemAttribute))).name;
 
-
-                            break;
-                    }
-                }
+                var item = RequestSerializationHelper.ResolveField(info.field, this, info.attributes, itemName);
+                if (item != null)
+                    result.Add(item.Value);
             }
-
+            PostProcessFormData(result);
             return result;
+        }
+
+        protected virtual void PostProcessFormData(List<KeyValuePair<string, string>> data)
+        {
         }
     }
 }

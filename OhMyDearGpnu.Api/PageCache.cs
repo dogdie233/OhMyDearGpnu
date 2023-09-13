@@ -44,7 +44,7 @@ namespace OhMyDearGpnu.Api
 
         public async Task Update()
         {
-            var res = await client.SendRequest(requestMessage);
+            var res = await client.SendRequestMessage(requestMessage);
             res.EnsureSuccessStatusCode();
             Document.Close();
             browsingContext.Active = null;
