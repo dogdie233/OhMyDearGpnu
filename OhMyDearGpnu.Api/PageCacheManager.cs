@@ -9,7 +9,7 @@
             PageCache? oldCache = null;
             foreach (var cache in caches)
             {
-                if (cache.Uri == page.Uri)
+                if (cache.Identifier == page.Identifier)
                 {
                     oldCache = cache;
                     caches.Remove(cache);
@@ -22,6 +22,18 @@
         }
 
         public PageCache? GetCache(string identifier)
-            => caches.FirstOrDefault(p => p.Uri == identifier);
+            => caches.FirstOrDefault(p => p.Identifier == identifier);
+
+        public void Remove(string identifier)
+        {
+            foreach (var cache in caches)
+            {
+                if (cache.Identifier == identifier)
+                {
+                    caches.Remove(cache);
+                    return;
+                }
+            }
+        }
     }
 }

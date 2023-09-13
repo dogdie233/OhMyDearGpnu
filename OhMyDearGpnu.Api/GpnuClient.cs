@@ -1,4 +1,5 @@
-﻿using OhMyDearGpnu.Api.Request;
+﻿using OhMyDearGpnu.Api.Requests;
+using OhMyDearGpnu.Api.Responses;
 
 namespace OhMyDearGpnu.Api
 {
@@ -6,50 +7,46 @@ namespace OhMyDearGpnu.Api
     {
         public readonly SimpleServiceContainer serviceContainer;
         internal HttpClient client;
-        public bool IsLogin { get; private set; }
+
+        public bool IsLogin { get; internal set; }
 
         public GpnuClient()
         {
             client = new(new HttpClientHandler()
             {
-                AllowAutoRedirect = true,
                 UseProxy = true
             })
             {
                 BaseAddress = new Uri("https://jwglxt.gpnu.edu.cn/")
             };
+
             serviceContainer = new SimpleServiceContainer();
+            serviceContainer.AddExisted(this);
+            serviceContainer.Register<PageCacheManager>();
         }
 
-        public async Task Login(string username, string password, Captcha captcha)
+        public async Task<Response> SendRequest(BaseRequest request)
         {
-            var req = new LoginRequest(username, password, captcha);
+            await request.FillAutoFieldAsync(serviceContainer);
+            var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Path);
+            var formItems = request.GetFormItems(serviceContainer);
+            if (formItems.Any())
+                reqMsg.Content = new FormUrlEncodedContent(formItems);
+            var resMsg = await SendRequestMessageAsync(reqMsg);
+            var res = await request.CreateResponseAsync(serviceContainer, resMsg);
+            return res;
         }
 
-        public async Task<Captcha> CreateCaptchaAsync()
+        public async Task<DataResponse<TData>> SendRequest<TData>(BaseWithDataResponseRequest<TData> request)
         {
-            var timestamp = (DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString();
-            var req = new HttpRequestMessage(HttpMethod.Get, $"jwglxt/kaptcha?time={timestamp}");
-            var res = await SendRequestMessage(req);
-            res.EnsureSuccessStatusCode();
-            MemoryStream? ms = null;
-            try
-            {
-                ms = new MemoryStream((int)(res.Content.Headers.ContentLength ?? 512));
-                await res.Content.CopyToAsync(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-            }
-            catch
-            {
-                ms?.Dispose();
-                throw;
-            }
-            return new Captcha(timestamp, ms);
-        }
-
-        public async Task SendRequest(BaseRequest request)
-        {
-            throw new NotImplementedException();
+            await request.FillAutoFieldAsync(serviceContainer);
+            var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Path);
+            var formItems = request.GetFormItems(serviceContainer);
+            if (formItems.Any())
+                reqMsg.Content = new FormUrlEncodedContent(formItems);
+            var resMsg = await SendRequestMessageAsync(reqMsg);
+            var res = await request.CreateDataResponseAsync(serviceContainer, resMsg);
+            return res;
         }
 
         #region Low Level
@@ -58,19 +55,11 @@ namespace OhMyDearGpnu.Api
             request.Content = new FormUrlEncodedContent(items);
         }
 
-        public async Task<HttpResponseMessage> SendRequestMessage(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> SendRequestMessageAsync(HttpRequestMessage request)
         {
-            if (request.RequestUri?.Host != "jwglxt.gpnu.edu.cn")
-                throw new UriFormatException("Host must gpnu");
             request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.0.0");
             var res = await client.SendAsync(request);
-            ListenResponse(res);
             return res;
-        }
-
-        private void ListenResponse(HttpResponseMessage response)
-        {
-            var request = response.RequestMessage!;
         }
         #endregion
     }

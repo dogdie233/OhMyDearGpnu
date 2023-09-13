@@ -1,6 +1,6 @@
 ﻿namespace OhMyDearGpnu.Api
 {
-    public class Captcha
+    public class Captcha : IDisposable
     {
         public readonly string timestamp;
         public readonly Stream imageStream;
@@ -11,5 +11,7 @@
             this.timestamp = timestamp;
             this.imageStream = imageStream;
         }
+
+        public void Dispose() => imageStream.Dispose();
     }
 }

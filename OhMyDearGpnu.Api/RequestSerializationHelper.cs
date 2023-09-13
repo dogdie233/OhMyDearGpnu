@@ -1,4 +1,4 @@
-﻿using OhMyDearGpnu.Api.Request;
+﻿using OhMyDearGpnu.Api.Requests;
 using OhMyDearGpnu.Api.Serializer;
 
 using System.Reflection;
@@ -25,7 +25,7 @@ namespace OhMyDearGpnu.Api
             serializers.Add(serializer);
         }
 
-        public static KeyValuePair<string, string>? ResolveField(FieldInfo field, BaseRequest request, Attribute[] attributes, string keyName)
+        public static KeyValuePair<string, string>? SeralizeField(FieldInfo field, BaseRequest request, Attribute[] attributes, string keyName)
         {
             var value = field.GetValue(request);
 
@@ -41,7 +41,7 @@ namespace OhMyDearGpnu.Api
             // 定义在本类的
             var customSerializer = serializers.FirstOrDefault(serializer => serializer.targetType == field.FieldType);
             if (customSerializer != null)
-                return customSerializer.Serialize(field.GetValue(value), attributes, field, keyName);
+                return customSerializer.Serialize(field.GetValue(request), attributes, field, keyName);
 
             // 直接ToString()
             if (value == null)

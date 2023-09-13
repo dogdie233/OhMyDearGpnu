@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace OhMyDearGpnu.Api
+﻿namespace OhMyDearGpnu.Api
 {
     public static class SimpleServiceContainerExtension
     {
