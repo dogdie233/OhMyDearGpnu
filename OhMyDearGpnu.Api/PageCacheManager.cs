@@ -12,12 +12,16 @@
                 if (cache.Identifier == page.Identifier)
                 {
                     oldCache = cache;
-                    caches.Remove(cache);
                     break;
                 }
             }
-            if (oldCache != null && oldCache.ExpireAt > page.ExpireAt)
-                return;
+
+            if (oldCache != null)
+            {
+                if (oldCache.ExpireAt > page.ExpireAt)
+                    return;
+                caches.Remove(oldCache);
+            }
             caches.Add(page);
         }
 

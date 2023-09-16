@@ -60,23 +60,6 @@ namespace OhMyDearGpnu.Api
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class CaptchaSerializationBehaviourAttribute : Attribute
-    {
-        public enum Type
-        {
-            Value,
-            Timestamp
-        }
-
-        public readonly Type type;
-
-        public CaptchaSerializationBehaviourAttribute(Type type)
-        {
-            this.type = type;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class CustomSerializerAttribute : Attribute
     {
         public Type serializerType;

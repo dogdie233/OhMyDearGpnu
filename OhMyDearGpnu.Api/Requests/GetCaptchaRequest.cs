@@ -1,19 +1,11 @@
-﻿using OhMyDearGpnu.Api.Responses;
+﻿using OhMyDearGpnu.Api.Modules;
+using OhMyDearGpnu.Api.Responses;
 
 namespace OhMyDearGpnu.Api.Requests
 {
     public class GetCaptchaRequest : BaseWithDataResponseRequest<Captcha>
     {
-        public readonly string timestamp;
-
-        public GetCaptchaRequest(string? timestamp)
-        {
-            if (timestamp == null)
-                timestamp = (DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString("F0");
-            this.timestamp = timestamp;
-        }
-
-        public override string Path => $"jwglxt/kaptcha?time={timestamp}";
+        public override string Path => $"jwglxt/kaptcha?time={(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString("F0")}";
         public override HttpMethod HttpMethod => HttpMethod.Get;
 
         public override async Task<DataResponse<Captcha>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
@@ -31,7 +23,7 @@ namespace OhMyDearGpnu.Api.Requests
                 ms?.Dispose();
                 throw;
             }
-            var captcha = new Captcha(timestamp, ms);
+            var captcha = new Captcha(ms);
             return new DataResponse<Captcha>(null, captcha);
         }
     }

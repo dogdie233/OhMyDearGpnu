@@ -1,5 +1,5 @@
 ﻿using AngleSharp.Html.Parser;
-
+using OhMyDearGpnu.Api.Modules;
 using OhMyDearGpnu.Api.Responses;
 
 namespace OhMyDearGpnu.Api.Requests
@@ -23,7 +23,7 @@ namespace OhMyDearGpnu.Api.Requests
         [FromPageCache("jwglxt/xtgl/login_slogin.html", selector: "#csrftoken")]
         private string? csrfToken;*/
 
-        public override string Path => $"/jwglxt/xtgl/login_slogin.html?time={captcha.timestamp}";
+        public override string Path => $"/jwglxt/xtgl/login_slogin.html?time={Utils.GetCurrentMilliTimestamp()}";
         public override HttpMethod HttpMethod => HttpMethod.Post;
 
         public LoginRequest(string username, string password, Captcha captcha)
@@ -36,7 +36,7 @@ namespace OhMyDearGpnu.Api.Requests
         public override async Task FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
         {
             await base.FillAutoFieldAsync(serviceContainer);
-            var publicKeyResponse = await serviceContainer.Locate<GpnuClient>().SendRequest(new GetLoginPublicKeyRequest(captcha.timestamp));
+            var publicKeyResponse = await serviceContainer.Locate<GpnuClient>().SendRequest(new GetLoginPublicKeyRequest(Utils.GetCurrentMilliTimestamp()));
             if (!publicKeyResponse.IsSucceeded)
                 throw new NullReferenceException(publicKeyResponse.message);
 
@@ -57,7 +57,7 @@ namespace OhMyDearGpnu.Api.Requests
             var document = await new HtmlParser().ParseDocumentAsync(responseMessage.Content.ReadAsStream());
             var tipsElement = document.QuerySelector("#tips");
             if (tipsElement != null)
-                return new Response(tipsElement.NodeValue);
+                return new Response(tipsElement.TextContent.Trim());
             return new Response("未知的错误");
         }
     }

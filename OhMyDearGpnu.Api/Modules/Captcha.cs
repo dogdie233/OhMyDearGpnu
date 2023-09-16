@@ -1,14 +1,12 @@
-﻿namespace OhMyDearGpnu.Api
+﻿namespace OhMyDearGpnu.Api.Modules
 {
     public class Captcha : IDisposable
     {
-        public readonly string timestamp;
         public readonly Stream imageStream;
         public string? value;
 
-        internal Captcha(string timestamp, Stream imageStream)
+        internal Captcha(Stream imageStream)
         {
-            this.timestamp = timestamp;
             this.imageStream = imageStream;
         }
 
