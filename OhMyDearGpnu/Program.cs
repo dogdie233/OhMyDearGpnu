@@ -38,6 +38,19 @@ if (loginRes.IsSucceeded)
     var calendarRes = await client.GetCalendar();
     var calendar = calendarRes.data!;
     Console.WriteLine($"本周为第{calendar.CurrentWeek}周");
+    var curriculumsRes = await client.GetCurriculums(2023, "3");
+    var curriculums = curriculumsRes.data!;
+    Console.WriteLine($"========本周的课表为========");
+    foreach (var curriculum in curriculums)
+    {
+        if (!curriculum.Week.IsInRange(calendar.CurrentWeek))
+            continue;
+        Console.Write($"周{curriculum.Day}    ");
+        Console.Write($"{curriculum.Name.PadRight(20, ' ')}");
+        Console.Write($"{curriculum.Classroom.PadRight(10, ' ')}");
+        Console.WriteLine();
+    }
+    Console.WriteLine("============================");
 }
 else
     Console.WriteLine($"登录失败，{loginRes.message}");

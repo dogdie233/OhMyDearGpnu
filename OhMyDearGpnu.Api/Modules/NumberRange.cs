@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace OhMyDearGpnu.Api.Modules
 {
@@ -19,7 +20,16 @@ namespace OhMyDearGpnu.Api.Modules
             this.end = end;
         }
 
-        public 
+        public static NumberRange Parse(string str)
+            => Parse(str.AsSpan());
+
+        public static NumberRange Parse(ReadOnlySpan<char> str)
+        {
+            var connectionIndex = str.IndexOf('-');
+            if (connectionIndex == -1)
+                return new NumberRange(int.Parse(str), int.Parse(str) + 1);
+            return new NumberRange(int.Parse(str.Slice(0, connectionIndex)), int.Parse(str.Slice(connectionIndex + 1, str.Length - connectionIndex - 1)));
+        }
         #endregion
 
         public bool IsInRange(int value) => value >= start && value < end;
