@@ -4,7 +4,7 @@ using OhMyDearGpnu.Api.Responses;
 
 namespace OhMyDearGpnu.Api.Requests
 {
-    public class LoginRequest : BaseRequest
+    public class LoginRequest : BaseWithDataResponseRequest
     {
         [FormItem("yhm")]
         public string username;

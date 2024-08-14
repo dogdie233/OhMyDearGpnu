@@ -25,7 +25,7 @@ namespace OhMyDearGpnu.Api
             serializers.Add(serializer);
         }
 
-        public static KeyValuePair<string, string>? SeralizeField(FieldInfo field, BaseRequest request, Attribute[] attributes, string keyName)
+        public static KeyValuePair<string, string>? SeralizeField(FieldInfo field, BaseWithDataResponseRequest request, Attribute[] attributes, string keyName)
         {
             var value = field.GetValue(request);
 

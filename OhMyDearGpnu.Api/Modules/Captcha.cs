@@ -10,6 +10,11 @@
             this.imageStream = imageStream;
         }
 
+        ~Captcha()
+        {
+            imageStream.Dispose();
+        }
+
         public void Dispose() => imageStream.Dispose();
     }
 }

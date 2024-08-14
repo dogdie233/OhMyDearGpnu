@@ -5,7 +5,7 @@ namespace OhMyDearGpnu.Api.Requests
 {
     public class GetCaptchaRequest : BaseWithDataResponseRequest<Captcha>
     {
-        public override string Path => $"jwglxt/kaptcha?time={(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString("F0")}";
+        public override string Path => $"jwglxt/kaptcha?time={Utils.GetCurrentMilliTimestamp()}";
         public override HttpMethod HttpMethod => HttpMethod.Get;
 
         public override async Task<DataResponse<Captcha>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)

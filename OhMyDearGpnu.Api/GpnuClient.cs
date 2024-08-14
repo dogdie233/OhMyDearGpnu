@@ -6,7 +6,7 @@ namespace OhMyDearGpnu.Api
     public class GpnuClient
     {
         public readonly SimpleServiceContainer serviceContainer;
-        internal HttpClient client;
+        internal readonly HttpClient client;
 
         public bool IsLogin { get; internal set; }
 
@@ -25,7 +25,7 @@ namespace OhMyDearGpnu.Api
             serviceContainer.Register<PageCacheManager>();
         }
 
-        public async Task<Response> SendRequest(BaseRequest request)
+        public async Task<Response> SendRequest(BaseWithDataResponseRequest request)
         {
             await request.FillAutoFieldAsync(serviceContainer);
             var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Path);

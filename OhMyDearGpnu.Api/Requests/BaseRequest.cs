@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace OhMyDearGpnu.Api.Requests
 {
-    public abstract class BaseRequest
+    public abstract class BaseWithDataResponseRequest
     {
         public abstract string Path { get; }
         public abstract HttpMethod HttpMethod { get; }
@@ -64,7 +64,7 @@ namespace OhMyDearGpnu.Api.Requests
         }
     }
 
-    public abstract class BaseWithDataResponseRequest<TData> : BaseRequest
+    public abstract class BaseWithDataResponseRequest<TData> : BaseWithDataResponseRequest
     {
         public override async Task<Response> CreateResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
             => await CreateDataResponseAsync(serviceContainer, responseMessage);
