@@ -3,15 +3,16 @@ using OhMyDearGpnu.Api.Serializer;
 
 using System.Reflection;
 
-namespace OhMyDearGpnu.Api
-{
-    public static class RequestSerializationHelper
+namespace OhMyDearGpnu.Api.Utility;
+
+public static class RequestSerializationHelper
     {
         private static readonly List<BaseSerializer> serializers = new();
 
         static RequestSerializationHelper()
         {
             AddCustomSerializer(new CaptchaSerializer());
+            AddCustomSerializer(new CasCaptchaSerializer());
         }
 
         public static void AddCustomSerializer(BaseSerializer serializer)
@@ -71,4 +72,3 @@ namespace OhMyDearGpnu.Api
             return newSerializer;
         }
     }
-}

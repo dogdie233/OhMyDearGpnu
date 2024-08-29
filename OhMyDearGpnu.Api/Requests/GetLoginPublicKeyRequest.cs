@@ -23,9 +23,9 @@ namespace OhMyDearGpnu.Api.Requests
             responseMessage.EnsureSuccessStatusCode();
             var content = await responseMessage.Content.ReadAsStringAsync();
             var data = JsonSerializer.Deserialize<GetLoginPublicKeyData>(content);
-            if (data != null)
-                return new(null, data);
-            return new("Json反序列化失败", null);
+            return data != null
+                ? DataResponse<GetLoginPublicKeyData>.Success(data)
+                : DataResponse<GetLoginPublicKeyData>.Fail("Json反序列化失败");
         }
     }
 }

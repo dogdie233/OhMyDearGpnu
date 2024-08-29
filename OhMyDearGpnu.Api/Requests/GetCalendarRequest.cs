@@ -18,7 +18,7 @@ namespace OhMyDearGpnu.Api.Requests
             var thead = page.Document!.QuerySelector("thead");
             var tbody = page.Document!.QuerySelector("tbody");
             if (thead == null || tbody == null || thead.ChildElementCount != 3)
-                return new("无法解析日历数据", null);
+                return DataResponse<Calendar>.Fail("无法解析日历数据");
 
             var titleHead = thead.Children[0];
             var monthHead = thead.Children[1];
@@ -58,9 +58,9 @@ namespace OhMyDearGpnu.Api.Requests
                 day = int.Parse(content);
             }
 
-            if (!int.TryParse(titleHead.TextContent.Trim()[0..4], out var year))
-                return new("无法解析年份", null);
-            return new(null, new Calendar(new DateTime(year, month, day)));
+            return !int.TryParse(titleHead.TextContent.Trim()[0..4], out var year)
+                ? DataResponse<Calendar>.Fail("无法解析年份")
+                : DataResponse<Calendar>.Success(new Calendar(new DateTime(year, month, day)));
         }
     }
 }

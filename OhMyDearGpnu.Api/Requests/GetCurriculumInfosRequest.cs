@@ -23,7 +23,7 @@ namespace OhMyDearGpnu.Api.Requests
 
         public override async Task<DataResponse<CurriculumInfo[]>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
         {
-            using var document = await JsonDocument.ParseAsync(responseMessage.Content.ReadAsStream());
+            using var document = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
             var root = document.RootElement;
             var results = new List<CurriculumInfo>();
             var curriculumsArray = root.GetProperty("kbList");
@@ -47,7 +47,7 @@ namespace OhMyDearGpnu.Api.Requests
                 };
                 results.Add(curriculumInfo);
             }
-            return new DataResponse<CurriculumInfo[]>(null, results.ToArray());
+            return DataResponse<CurriculumInfo[]>.Success(results.ToArray());
         }
     }
 }

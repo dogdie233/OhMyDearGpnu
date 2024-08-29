@@ -1,4 +1,5 @@
 ﻿using OhMyDearGpnu.Api.Responses;
+using OhMyDearGpnu.Api.Utility;
 
 using System.Reflection;
 
@@ -6,6 +7,7 @@ namespace OhMyDearGpnu.Api.Requests
 {
     public abstract class BaseWithDataResponseRequest
     {
+        public virtual string Host => "https://jwglxt.gpnu.edu.cn/";
         public abstract string Path { get; }
         public abstract HttpMethod HttpMethod { get; }
 

@@ -15,6 +15,10 @@
             imageStream.Dispose();
         }
 
-        public void Dispose() => imageStream.Dispose();
+        public void Dispose()
+        {
+            imageStream.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
 }

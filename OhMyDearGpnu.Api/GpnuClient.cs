@@ -15,10 +15,7 @@ namespace OhMyDearGpnu.Api
             client = new(new HttpClientHandler()
             {
                 UseProxy = true
-            })
-            {
-                BaseAddress = new Uri("https://jwglxt.gpnu.edu.cn/")
-            };
+            });
 
             serviceContainer = new SimpleServiceContainer();
             serviceContainer.AddExisted(this);
@@ -28,7 +25,7 @@ namespace OhMyDearGpnu.Api
         public async Task<Response> SendRequest(BaseWithDataResponseRequest request)
         {
             await request.FillAutoFieldAsync(serviceContainer);
-            var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Path);
+            var reqMsg = new HttpRequestMessage(request.HttpMethod, new Uri(request.Host + request.Path));
             var formItems = request.GetFormItems(serviceContainer);
             if (formItems.Any())
                 reqMsg.Content = new FormUrlEncodedContent(formItems);
@@ -40,7 +37,7 @@ namespace OhMyDearGpnu.Api
         public async Task<DataResponse<TData>> SendRequest<TData>(BaseWithDataResponseRequest<TData> request)
         {
             await request.FillAutoFieldAsync(serviceContainer);
-            var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Path);
+            var reqMsg = new HttpRequestMessage(request.HttpMethod, new Uri(request.Host + request.Path));
             var formItems = request.GetFormItems(serviceContainer);
             if (formItems.Any())
                 reqMsg.Content = new FormUrlEncodedContent(formItems);

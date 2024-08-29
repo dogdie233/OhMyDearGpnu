@@ -1,5 +1,6 @@
 ﻿using OhMyDearGpnu.Api.Modules;
 using OhMyDearGpnu.Api.Responses;
+using OhMyDearGpnu.Api.Utility;
 
 namespace OhMyDearGpnu.Api.Requests
 {
@@ -24,7 +25,7 @@ namespace OhMyDearGpnu.Api.Requests
                 throw;
             }
             var captcha = new Captcha(ms);
-            return new DataResponse<Captcha>(null, captcha);
+            return DataResponse<Captcha>.Success(captcha);
         }
     }
 }

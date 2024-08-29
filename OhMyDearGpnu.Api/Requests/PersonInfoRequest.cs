@@ -2,6 +2,8 @@
 
 using System.Globalization;
 
+using OhMyDearGpnu.Api.Utility;
+
 namespace OhMyDearGpnu.Api.Requests
 {
     public class PersonInfoRequest : BaseWithDataResponseRequest<PersonInfoResponse>
@@ -44,7 +46,7 @@ namespace OhMyDearGpnu.Api.Requests
                 deserializer.Write(labelText, value);
             }
 
-            return new(null, result);
+            return DataResponse<PersonInfoResponse>.Success(result);
         }
     }
 }
