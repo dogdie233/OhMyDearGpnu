@@ -9,7 +9,7 @@ __本项目并非广东技术师范大学官方的项目__
 2. 享用接口吧
 
 ```CSharp
-GpnuClient client = ne GpnuClient();  // 创建一个客户端实例
+GpnuClient client = new GpnuClient();  // 创建一个客户端实例
 Cpatcha captcha = await client.SendRequest(new GetCaptchaRequest(null)).data;  // 使用实例化请求的方式获取验证码，这里忽略是否成功
 captcha.value = "这里自己解验证码";
 Response loginResponse = await client.Login("学号", "密码", captcha);  // 使用扩展方法的方式获取验证码
