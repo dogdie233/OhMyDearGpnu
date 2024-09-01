@@ -3,19 +3,46 @@ using OhMyDearGpnu.Api;
 using OhMyDearGpnu.Api.Requests;
 
 var client = new GpnuClient();
+
 Console.Write("请输入学号: ");
-var username = Console.ReadLine();
+var username = Console.ReadLine()!;
 Console.Write("请输入密码: ");
 var password = Helper.ReadPassword();
 
+var casHandler = await client.GetCasHandlerIfNecessary();
+if (casHandler is not null)
+{
+    Console.Write("需要通过cas认证，是否使用TGT登录(y/n)：");
+    if (Console.ReadLine() == "y")
+    {
+        Console.WriteLine("正在使用TGT登录");
+        Console.Write("请输入TGT：");
+        await casHandler.LoginBySts(Console.ReadLine()!);
+    }
+    else
+    {
+        var casCaptcha = await casHandler.GetPasswordLoginCaptcha();
+        File.Delete("casCaptcha.png");
+        using (var fs = File.Create("casCaptcha.png"))
+            await fs.WriteAsync(casCaptcha.image);
+        Console.WriteLine("已将验证码保存至casCaptcha.png");
+        Console.Write("请输入验证码结果: ");
+        casCaptcha.value = Console.ReadLine();
+        var casLoginRes = await casHandler.LoginByPassword(username, password, casCaptcha, true);
+        if (casLoginRes is not null)
+        {
+            Console.WriteLine($"cas 登录失败，原因：{casLoginRes}");
+            return;
+        }
+    }
+    Console.WriteLine($"cas 登录成功，TGT为{casHandler.Tgt}，回到教务管理系统登录流程");
+}
+
 Console.WriteLine("正在获取验证码");
-var captcha = (await client.GetCaptcha()).data;
+var captcha = (await client.GetCaptcha()).data!;
 File.Delete("captcha.jpg");
 using (var fs = File.Create("captcha.jpg"))
-{
     await captcha.imageStream.CopyToAsync(fs);
-    captcha.imageStream.Dispose();
-}
 Console.WriteLine("已将验证码保存至captcha.jpg");
 Console.Write("请输入验证码: ");
 captcha.value = Console.ReadLine();

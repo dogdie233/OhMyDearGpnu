@@ -8,7 +8,7 @@ namespace OhMyDearGpnu.Api.Requests
 {
     public class PersonInfoRequest : BaseWithDataResponseRequest<PersonInfoResponse>
     {
-        public override string Path => "/jwglxt/xsxxxggl/xsgrxxwh_cxXsgrxx.html?gnmkdm=N100801&layout=default";
+        public override string Path => "jwglxt/xsxxxggl/xsgrxxwh_cxXsgrxx.html?gnmkdm=N100801&layout=default";
         public override HttpMethod HttpMethod => HttpMethod.Get;
 
         public override async Task<DataResponse<PersonInfoResponse>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
@@ -17,7 +17,7 @@ namespace OhMyDearGpnu.Api.Requests
             var cache = cacheManager.GetCache(Path);
             if (cache == null)
             {
-                var reqMsg = new HttpRequestMessage(HttpMethod, Path);
+                var reqMsg = new HttpRequestMessage(HttpMethod, Host + Path);
                 cache = PageCache.CreateLazy(serviceContainer.Locate<GpnuClient>(), reqMsg, TimeSpan.FromMinutes(10));
                 cacheManager.AddCache(cache);
             }

@@ -7,7 +7,7 @@ namespace OhMyDearGpnu.Api.Requests
 {
     public class GetCalendarRequest : BaseWithDataResponseRequest<Calendar>
     {
-        public override string Path => "/jwglxt/xtgl/index_cxAreaFive.html";
+        public override string Path => "jwglxt/xtgl/index_cxAreaFive.html";
         public override HttpMethod HttpMethod => HttpMethod.Get;
 
         public override async Task<DataResponse<Calendar>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)

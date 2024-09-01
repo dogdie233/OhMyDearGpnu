@@ -18,7 +18,7 @@ namespace OhMyDearGpnu.Api.Requests
             this.termName = termName;
         }
 
-        public override string Path => "/jwglxt/kbcx/xskbcx_cxXsgrkb.html";
+        public override string Path => "jwglxt/kbcx/xskbcx_cxXsgrkb.html";
         public override HttpMethod HttpMethod => HttpMethod.Post;
 
         public override async Task<DataResponse<CurriculumInfo[]>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
@@ -33,7 +33,7 @@ namespace OhMyDearGpnu.Api.Requests
                 {
                     Classroom = curriculumInfoElement.GetProperty("cdmc").GetString() ?? string.Empty,
                     Day = int.Parse(curriculumInfoElement.GetProperty("xqj").GetString()!),
-                    Week = NumberRange.Parse(curriculumInfoElement.GetProperty("zcd").GetString()!.AsSpan()[0..^1]),
+                    Week = NumberRange.Parse(curriculumInfoElement.GetProperty("zcd").GetString()!.Replace("周", "")),
                     Name = curriculumInfoElement.GetProperty("kcmc").GetString() ?? string.Empty,
                     TimeId = NumberRange.Parse(curriculumInfoElement.GetProperty("jcs").GetString()!),
                     Campus = curriculumInfoElement.GetProperty("xqmc").GetString() ?? string.Empty,

@@ -26,8 +26,8 @@ namespace OhMyDearGpnu.Api.Requests
         /*[FormItem("csrftoken")]
         [FromPageCache("jwglxt/xtgl/login_slogin.html", selector: "#csrftoken")]
         private string? csrfToken;*/
-
-        public override string Path => $"/jwglxt/xtgl/login_slogin.html?time={Utils.GetCurrentMilliTimestamp()}";
+        
+        public override string Path => $"jwglxt/xtgl/login_slogin.html?time={captcha.timestamp}";
         public override HttpMethod HttpMethod => HttpMethod.Post;
 
         public LoginRequest(string username, string password, Captcha captcha)
@@ -40,13 +40,13 @@ namespace OhMyDearGpnu.Api.Requests
         public override async Task FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
         {
             await base.FillAutoFieldAsync(serviceContainer);
-            var publicKeyResponse = await serviceContainer.Locate<GpnuClient>().SendRequest(new GetLoginPublicKeyRequest(Utils.GetCurrentMilliTimestamp()));
+            var publicKeyResponse = await serviceContainer.Locate<GpnuClient>().SendRequest(new GetLoginPublicKeyRequest(captcha.timestamp));
             if (!publicKeyResponse.IsSucceeded)
                 throw new NullReferenceException(publicKeyResponse.message);
             
-            var exponent = Convert.FromBase64String(publicKeyResponse.data!.Exponent);
-            var modulus = Convert.FromBase64String(publicKeyResponse.data!.Modulus);
-            encryptedPassword = Convert.ToBase64String(EncryptHelper.EncryptPkcs1(password, exponent, modulus));
+            var exponent = publicKeyResponse.data.Exponent;
+            var modulus = publicKeyResponse.data.Modulus;
+            encryptedPassword = EncryptHelper.JwglxtPasswordEncrypt(password, exponent, modulus);
         }
 
         public override async Task<Response> CreateResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
@@ -57,7 +57,7 @@ namespace OhMyDearGpnu.Api.Requests
             var succeeded = responseMessage.RequestMessage!.RequestUri!.AbsolutePath == "/jwglxt/xtgl/index_initMenu.html";
             if (succeeded)
             {
-                var req = new HttpRequestMessage(HttpMethod.Get, Path);
+                var req = new HttpRequestMessage(HttpMethod.Get, Host + Path);
                 var cache = await PageCache.CreateFromResponseAsync(serviceContainer.Locate<GpnuClient>(), responseMessage, TimeSpan.FromMinutes(10), req);
                 serviceContainer.Locate<PageCacheManager>().AddCache(cache);
                 return Response.Success();

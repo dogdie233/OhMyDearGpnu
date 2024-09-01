@@ -1,4 +1,6 @@
-﻿using OhMyDearGpnu.Api.Requests;
+﻿using System.Net;
+
+using OhMyDearGpnu.Api.Requests;
 using OhMyDearGpnu.Api.Responses;
 
 namespace OhMyDearGpnu.Api
@@ -7,15 +9,24 @@ namespace OhMyDearGpnu.Api
     {
         public readonly SimpleServiceContainer serviceContainer;
         internal readonly HttpClient client;
-
+        internal readonly CookieContainer cookieContainer;
+        
         public bool IsLogin { get; internal set; }
 
         public GpnuClient()
         {
-            client = new(new HttpClientHandler()
+            cookieContainer = new CookieContainer();
+            client = new HttpClient(new RedirectingHandler()
             {
-                UseProxy = true
+                InnerHandler = new HttpClientHandler()
+                {
+                    AllowAutoRedirect = false,
+                    CookieContainer = cookieContainer,
+                    UseProxy = true
+                },
+                AllowAutoRedirect = true
             });
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.0.0");
 
             serviceContainer = new SimpleServiceContainer();
             serviceContainer.AddExisted(this);
@@ -54,7 +65,6 @@ namespace OhMyDearGpnu.Api
 
         public async Task<HttpResponseMessage> SendRequestMessageAsync(HttpRequestMessage request)
         {
-            request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.0.0");
             var res = await client.SendAsync(request);
             return res;
         }

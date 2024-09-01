@@ -2,11 +2,13 @@
 {
     public class Captcha : IDisposable
     {
+        public readonly ulong timestamp;
         public readonly Stream imageStream;
         public string? value;
 
-        internal Captcha(Stream imageStream)
+        internal Captcha(ulong timestamp, Stream imageStream)
         {
+            this.timestamp = timestamp;
             this.imageStream = imageStream;
         }
 

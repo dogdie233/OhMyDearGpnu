@@ -1,4 +1,6 @@
-﻿namespace OhMyDearGpnu.Api.Responses
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace OhMyDearGpnu.Api.Responses
 {
     public class Response
     {
@@ -24,6 +26,9 @@
         {
             this.data = data;
         }
+
+        [MemberNotNullWhen(true, nameof(data))]
+        public new bool IsSucceeded => message == null;
         
         public new static DataResponse<T> Success(T value) => new(null, value);
         public new static DataResponse<T> Fail(string message) => new(message, default);

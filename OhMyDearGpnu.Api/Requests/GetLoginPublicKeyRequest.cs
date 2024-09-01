@@ -6,12 +6,10 @@ namespace OhMyDearGpnu.Api.Requests
 {
     public class GetLoginPublicKeyRequest : BaseWithDataResponseRequest<GetLoginPublicKeyData>
     {
-        public readonly string timestamp;
+        public readonly ulong timestamp;
 
-        public GetLoginPublicKeyRequest(string? timestamp = null)
+        public GetLoginPublicKeyRequest(ulong timestamp)
         {
-            if (timestamp == null)
-                timestamp = (DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds.ToString("F0");
             this.timestamp = timestamp;
         }
 
