@@ -57,7 +57,7 @@ public class CasHandler
         return null;
     }
     
-    public async Task<string?> LoginBySts(string tgt, bool updateTgc = true)
+    public async Task LoginByTgt(string tgt, bool updateTgc = true)
     {
         IsLoggedIn = true;
         gpnuClient.serviceContainer.AddExisted(this);
@@ -65,7 +65,6 @@ public class CasHandler
 
         if (updateTgc)
             await UpdateHttpClientTgc(gpnuClient.client);
-        return null;
     }
 
     public async Task UpdateHttpClientTgc(HttpClient httpClient)

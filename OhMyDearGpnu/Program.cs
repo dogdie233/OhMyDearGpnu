@@ -17,7 +17,7 @@ if (casHandler is not null)
     {
         Console.WriteLine("正在使用TGT登录");
         Console.Write("请输入TGT：");
-        await casHandler.LoginBySts(Console.ReadLine()!);
+        await casHandler.LoginByTgt(Console.ReadLine()!);
     }
     else
     {
