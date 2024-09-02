@@ -10,11 +10,14 @@ namespace OhMyDearGpnu.Api.Modules
         #region Constructors
         /// <summary>
         /// Create a range to describe a period
+        /// Start must be less than or equal to end
         /// </summary>
         /// <param name="start">Include</param>
         /// <param name="end">Exclude</param>
         public NumberRange(int start, int end)
         {
+            if (start > end)
+                throw new ArgumentException("Start must be less than or equal to end.");
             this.start = start;
             this.end = end;
         }
@@ -24,10 +27,21 @@ namespace OhMyDearGpnu.Api.Modules
 
         public static NumberRange Parse(ReadOnlySpan<char> str)
         {
-            var connectionIndex = str.IndexOf('-');
-            if (connectionIndex == -1)
-                return new NumberRange(int.Parse(str), int.Parse(str) + 1);
-            return new NumberRange(int.Parse(str.Slice(0, connectionIndex)), int.Parse(str.Slice(connectionIndex + 1, str.Length - connectionIndex - 1)));
+            str = str.Trim();  // trim spaces
+            var connectionIndex = str[1..].IndexOf('-') + 1;  // skip first character maybe mean negative sign
+            if (connectionIndex == 0)
+            {
+                var value = int.Parse(str);
+                return new NumberRange(value, value + 1);
+            }
+            else
+            {
+                var left = int.Parse(str[..connectionIndex]);
+                var right = int.Parse(str[(connectionIndex + 1)..]);
+                if (left > right)
+                    (left, right) = (right, left);
+                return new NumberRange(left, right + 1);
+            }
         }
         #endregion
 
@@ -60,10 +74,10 @@ namespace OhMyDearGpnu.Api.Modules
         #endregion
 
         #region Enumerable
-        public IEnumerator<int> GetEnumerator() => new NumberEnumerator(start, end);
-        IEnumerator IEnumerable.GetEnumerator() => new NumberEnumerator(start, end);
+        public IEnumerator<int> GetEnumerator() => new Enumerator(start, end);
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(start, end);
 
-        public struct NumberEnumerator : IEnumerator<int>
+        public struct Enumerator : IEnumerator<int>
         {
             private int current;
             private readonly int startAt;
@@ -72,7 +86,7 @@ namespace OhMyDearGpnu.Api.Modules
             public int Current => current;
             object IEnumerator.Current => current;
 
-            public NumberEnumerator(int startAt, int endAt)
+            public Enumerator(int startAt, int endAt)
             {
                 current = startAt - 1;
                 this.endAt = endAt;

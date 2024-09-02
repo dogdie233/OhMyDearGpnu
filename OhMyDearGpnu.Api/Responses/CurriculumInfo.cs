@@ -6,9 +6,9 @@ namespace OhMyDearGpnu.Api.Responses
     {
         [Alias("cdmc")] public string Classroom { get; set; }
         [Alias("rk")] public int Day { get; set; }
-        [Alias("zcd")] public NumberRange Week { get; set; }
+        [Alias("zcd")] public DiscreteNumberRange Week { get; set; }
         [Alias("kcmc")] public string Name { get; set; }
-        [Alias("jcs")] public NumberRange TimeId { get; set; }
+        [Alias("jcs")] public DiscreteNumberRange TimeId { get; set; }
         [Alias("xqmc")] public string Campus { get; set; }
         [Alias("xm")] public string TeacherName { get; set; }
         [Alias("khfsmc")] public string AssessmentTypeName { get; set; }

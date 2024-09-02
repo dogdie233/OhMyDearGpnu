@@ -1,9 +1,12 @@
-﻿using System.Buffers.Text;
+﻿using System.Buffers;
+using System.Buffers.Text;
 
 namespace OhMyDearGpnu.Api.Utility;
 
 internal static class Utils
 {
+    public delegate void SplitAction(scoped ReadOnlySpan<char> span);
+    
     public static ulong GetCurrentMilliTimestamp() => (ulong)(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds;
 
     public static byte[] DecodeBase64(ReadOnlySpan<char> base64)
@@ -17,5 +20,23 @@ internal static class Utils
         var arr = new byte[arrLen];
         Convert.TryFromBase64Chars(base64, arr, out _);
         return arr;
+    }
+
+    public static void SplitDo(this ReadOnlySpan<char> span, char separator, in SplitAction action)
+    {
+        var left = 0;
+        var right = 0;
+
+        for (; right < span.Length; right++)
+        {
+            if (span[right] != separator)
+                continue;
+            if (right - left > 0)
+                action(span[left..right]);
+            left = right + 1;
+        }
+
+        if (right - left > 0)
+            action(span[left..right]);
     }
 }

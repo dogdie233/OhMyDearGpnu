@@ -33,9 +33,9 @@ namespace OhMyDearGpnu.Api.Requests
                 {
                     Classroom = curriculumInfoElement.GetProperty("cdmc").GetString() ?? string.Empty,
                     Day = int.Parse(curriculumInfoElement.GetProperty("xqj").GetString()!),
-                    Week = NumberRange.Parse(curriculumInfoElement.GetProperty("zcd").GetString()!.Replace("周", "")),
+                    Week = DiscreteNumberRange.Parse(curriculumInfoElement.GetProperty("zcd").GetString()!.Replace("周", "")),
                     Name = curriculumInfoElement.GetProperty("kcmc").GetString() ?? string.Empty,
-                    TimeId = NumberRange.Parse(curriculumInfoElement.GetProperty("jcs").GetString()!),
+                    TimeId = DiscreteNumberRange.Parse(curriculumInfoElement.GetProperty("jcs").GetString()!),
                     Campus = curriculumInfoElement.GetProperty("xqmc").GetString() ?? string.Empty,
                     TeacherName = curriculumInfoElement.GetProperty("xm").GetString() ?? string.Empty,
                     AssessmentTypeName = curriculumInfoElement.GetProperty("khfsmc").GetString() ?? string.Empty,
