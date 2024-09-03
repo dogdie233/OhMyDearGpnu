@@ -1,12 +1,7 @@
-﻿using System.Buffers;
-using System.Buffers.Text;
-
-namespace OhMyDearGpnu.Api.Utility;
+﻿namespace OhMyDearGpnu.Api.Utility;
 
 internal static class Utils
 {
-    public delegate void SplitAction(scoped ReadOnlySpan<char> span);
-    
     public static ulong GetCurrentMilliTimestamp() => (ulong)(DateTime.Now - DateTime.UnixEpoch).TotalMilliseconds;
 
     public static byte[] DecodeBase64(ReadOnlySpan<char> base64)
@@ -22,7 +17,10 @@ internal static class Utils
         return arr;
     }
 
-    public static void SplitDo(this ReadOnlySpan<char> span, char separator, in SplitAction action)
+    public delegate void SplitAction<T>(ReadOnlySpan<char> span, scoped ref T userData) where T : struct;
+    
+    public static void Split<TData>(this ReadOnlySpan<char> span, char separator, SplitAction<TData> action, scoped ref TData userData)
+        where TData : struct
     {
         var left = 0;
         var right = 0;
@@ -32,11 +30,17 @@ internal static class Utils
             if (span[right] != separator)
                 continue;
             if (right - left > 0)
-                action(span[left..right]);
+                action(span[left..right], ref userData);
             left = right + 1;
         }
 
         if (right - left > 0)
-            action(span[left..right]);
+            action(span[left..right], ref userData);
+    }
+
+    public static void Split<TData>(this ReadOnlySpan<char> span, char separator, SplitAction<TData> action, TData userData)
+        where TData : struct
+    {
+        Split(span, separator, action, ref userData);
     }
 }

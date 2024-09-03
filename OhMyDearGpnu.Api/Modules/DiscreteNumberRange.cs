@@ -25,14 +25,16 @@ public struct DiscreteNumberRange : IEnumerable<int>
     {
         if (str.Length == 0)
             return new DiscreteNumberRange();
-        var ranges = new NumberRange[str.Count(',') + 1];
-        var i = 0;
-        var ranges1 = ranges;  // make compiler happy
-        str.SplitDo(',', span => ranges1[i++] = NumberRange.Parse(span));
-        ranges = ranges1;
-        if (i != ranges.Length)
-            Array.Resize(ref ranges, i);
-        return Create(ranges, false);
+        var userData = (idx: 0, ranges: new NumberRange[str.Count(',') + 1]);
+        str.Split(',', SplitAction, ref userData);
+        if (userData.idx != userData.ranges.Length)
+            Array.Resize(ref userData.ranges, userData.idx);
+        return Create(userData.ranges, false);
+        
+        static void SplitAction(ReadOnlySpan<char> span, scoped ref (int idx, NumberRange[] ranges) data)
+        {
+            data.ranges[data.idx++] = NumberRange.Parse(span);
+        }
     }
 
     public static DiscreteNumberRange Create(NumberRange[] ranges, bool cloneArray = true)
