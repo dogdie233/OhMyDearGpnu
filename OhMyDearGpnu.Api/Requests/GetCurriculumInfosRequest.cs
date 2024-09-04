@@ -33,9 +33,9 @@ namespace OhMyDearGpnu.Api.Requests
                 {
                     Classroom = curriculumInfoElement.GetProperty("cdmc").GetString() ?? string.Empty,
                     Day = int.Parse(curriculumInfoElement.GetProperty("xqj").GetString()!),
-                    Week = DiscreteNumberRange.Parse(curriculumInfoElement.GetProperty("zcd").GetString()!.Replace("周", "")),
+                    WeekString = curriculumInfoElement.GetProperty("zcd").GetString() ?? string.Empty,
                     Name = curriculumInfoElement.GetProperty("kcmc").GetString() ?? string.Empty,
-                    TimeId = DiscreteNumberRange.Parse(curriculumInfoElement.GetProperty("jcs").GetString()!),
+                    TimeIdString = curriculumInfoElement.GetProperty("jcdm").GetString() ?? string.Empty,
                     Campus = curriculumInfoElement.GetProperty("xqmc").GetString() ?? string.Empty,
                     TeacherName = curriculumInfoElement.GetProperty("xm").GetString() ?? string.Empty,
                     AssessmentTypeName = curriculumInfoElement.GetProperty("khfsmc").GetString() ?? string.Empty,
@@ -45,6 +45,8 @@ namespace OhMyDearGpnu.Api.Requests
                     TotalCourseHours = int.Parse(curriculumInfoElement.GetProperty("zxs").GetString()!),
                     Credit = float.Parse(curriculumInfoElement.GetProperty("xf").GetString()!)
                 };
+                curriculumInfo.TimeId = DiscreteNumberRange.Parse(curriculumInfo.TimeIdString);
+                curriculumInfo.Week = DiscreteNumberRange.Parse(curriculumInfo.WeekString.Replace("周", ""));
                 results.Add(curriculumInfo);
             }
             return DataResponse<CurriculumInfo[]>.Success(results.ToArray());

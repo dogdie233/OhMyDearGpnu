@@ -188,4 +188,31 @@ public class DiscreteNumberRangeTests
         int[] expect = [1, 2, 4, 5, 6];
         CollectionAssert.AreEqual(expect, actual);
     }
+
+    [Test]
+    public void ParseNormalUsuallyData()
+    {
+        var str = "2-17(双),18,19";
+        var actual = DiscreteNumberRange.Parse(str);
+        int[] expect = [2, 4, 6, 8, 10, 12, 14, 16, 18, 19];
+        CollectionAssert.AreEqual(expect, actual);
+    }
+
+    [Test]
+    public void ParseNormalUsuallyData2()
+    {
+        var str = "2-17(单),18,19";
+        var actual = DiscreteNumberRange.Parse(str);
+        int[] expect = [3, 5, 7, 9, 11, 13, 15, 17, 18, 19];
+        CollectionAssert.AreEqual(expect, actual);
+    }
+
+    [Test]
+    public void ParseEvil2()
+    {
+        var str = "1-4(双),3-7,8-10(单)";
+        var actual = DiscreteNumberRange.Parse(str);
+        int[] expect = [2, 3, 4, 5, 6, 7, 9];
+        CollectionAssert.AreEqual(expect, actual);
+    }
 }

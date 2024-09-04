@@ -55,16 +55,57 @@ public struct DiscreteNumberRange : IEnumerable<int>
         var currentRange = sortedRanges[0];
         for (var i = 1; i < sortedRanges.Length; i++)
         {
-            if (currentRange.end >= sortedRanges[i].start)
-                currentRange = new NumberRange(currentRange.start, Math.Max(currentRange.end, sortedRanges[i].end));
-            else
+            if (sortedRanges[i].oddEvenFlag == OddEvenFlag.None)
+                continue;
+
+            if (currentRange.end == sortedRanges[i].RealStart &&
+                currentRange.oddEvenFlag == sortedRanges[i].oddEvenFlag)
             {
-                newRanges.Add(currentRange);
-                currentRange = sortedRanges[i];
+                currentRange = new NumberRange(currentRange.start, sortedRanges[i].end, currentRange.oddEvenFlag);
+                continue;
             }
+            if (currentRange.end <= sortedRanges[i].RealStart)
+            {
+                AddRange(currentRange);
+                currentRange = sortedRanges[i];
+                continue;
+            }
+            
+            if (currentRange.oddEvenFlag == sortedRanges[i].oddEvenFlag)
+            {
+                currentRange = new NumberRange(currentRange.start, Math.Max(currentRange.end, sortedRanges[i].end), currentRange.oddEvenFlag);
+                continue;
+            }
+
+            if (sortedRanges[i].end < currentRange.end)
+            {
+                if (currentRange.oddEvenFlag == OddEvenFlag.Both)
+                    continue;
+                AddRange(new NumberRange(currentRange.start, sortedRanges[i].RealStart, currentRange.oddEvenFlag));
+                AddRange(new NumberRange(sortedRanges[i].RealStart, sortedRanges[i].end, OddEvenFlag.Both));
+                currentRange = new NumberRange(sortedRanges[i].end, currentRange.end, currentRange.oddEvenFlag);
+                continue;
+            }
+
+            if (sortedRanges[i].oddEvenFlag == OddEvenFlag.Both &&
+                currentRange.RealStart == sortedRanges[i].RealStart)
+            {
+                currentRange = sortedRanges[i];
+                continue;
+            }
+            AddRange(new NumberRange(currentRange.start, sortedRanges[i].RealStart, currentRange.oddEvenFlag));
+            AddRange(new NumberRange(sortedRanges[i].RealStart, currentRange.end, OddEvenFlag.Both));
+            currentRange = new NumberRange(currentRange.end, sortedRanges[i].end, sortedRanges[i].oddEvenFlag);
         }
-        newRanges.Add(currentRange);
+        AddRange(currentRange);
         return new DiscreteNumberRange(newRanges.ToArray());
+        
+        void AddRange(in NumberRange range)
+        {
+            if (range.oddEvenFlag == OddEvenFlag.None || range.RealStart >= range.end)
+                return;
+            newRanges.Add(range);
+        }
     }
 
     public static DiscreteNumberRange CreateEmpty()
