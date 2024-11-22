@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OhMyDearGpnu.Api.Responses.Cas;
+namespace OhMyDearGpnu.Api.Cas.Responses;
 
 public class PostTicketResponse
 {

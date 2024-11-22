@@ -2,7 +2,7 @@
 
 using OhMyDearGpnu.Api.Serializer.Json;
 
-namespace OhMyDearGpnu.Api.Responses.Cas;
+namespace OhMyDearGpnu.Api.Cas.Responses;
 
 public class GetCasCaptchaResponse
 {

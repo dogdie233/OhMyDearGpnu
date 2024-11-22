@@ -1,4 +1,4 @@
-﻿namespace OhMyDearGpnu.Api.Modules.Cas;
+﻿namespace OhMyDearGpnu.Api.Cas;
 
 public class CasCaptcha
 {

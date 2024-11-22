@@ -29,9 +29,9 @@ if (casHandler is not null)
         Console.Write("请输入验证码结果: ");
         casCaptcha.value = Console.ReadLine();
         var casLoginRes = await casHandler.LoginByPassword(username, password, casCaptcha, true);
-        if (casLoginRes is not null)
+        if (!casLoginRes.IsSucceeded)
         {
-            Console.WriteLine($"cas 登录失败，原因：{casLoginRes}");
+            Console.WriteLine($"cas 登录失败，原因：{casLoginRes.ErrorMessage}");
             return;
         }
     }

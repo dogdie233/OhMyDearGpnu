@@ -1,0 +1,11 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "OhMyDearGpnu.Api.SourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "environmentVariables": {
+      },
+      "targetProject": "../OhMyDearGpnu.Api/OhMyDearGpnu.Api.csproj"
+    }
+  }
+}

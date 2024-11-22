@@ -1,12 +1,17 @@
 ﻿using System.Reflection;
 
+using OhMyDearGpnu.Api.Cas;
 using OhMyDearGpnu.Api.Modules;
-using OhMyDearGpnu.Api.Modules.Cas;
 
 namespace OhMyDearGpnu.Api.Serializer;
 
 internal class CasCaptchaSerializer : BaseSerializer<CasCaptcha>
 {
+    public override string? Serialize(CasCaptcha? value)
+    {
+        return value?.value;
+    }
+
     public override KeyValuePair<string, string>? Serialize(CasCaptcha? value, Attribute[] attributes, FieldInfo field, string keyName)
     {
         if (value?.value == null)

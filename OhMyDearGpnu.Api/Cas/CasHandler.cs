@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using OhMyDearGpnu.Api.Requests.Cas;
-using OhMyDearGpnu.Api.Responses.Cas;
+using OhMyDearGpnu.Api.Cas.Requests;
+using OhMyDearGpnu.Api.Cas.Responses;
 
-namespace OhMyDearGpnu.Api.Modules.Cas;
+namespace OhMyDearGpnu.Api.Cas;
 
 public class CasHandler
 {
@@ -31,18 +31,18 @@ public class CasHandler
         return res.data!;
     }
 
-    public async Task<string?> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true)
+    public async Task<CasLoginResult> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true)
     {
         var ticketResponse = await gpnuClient.SendRequest(new PostTicketRequest(username, password, casCaptcha));
         if (!ticketResponse.IsSucceeded)
-            return ticketResponse.message ?? "未知原因";
+            return CasLoginResult.CreateFail(ticketResponse.message ?? "未知原因");
         
-        var ticketError = TranslateTicketError(ticketResponse.data!);
+        var ticketError = TranslateTicketError(ticketResponse.data);
         if (ticketError is not null)
-            return ticketError;
+            return CasLoginResult.CreateFail(ticketError);
         
         if (ticketResponse.data is { Ticket: null } or { Tgt: null })
-            return "未知错误: Ticket 或 Tgt 为空";
+            return CasLoginResult.CreateFail("未知错误: Ticket 或 Tgt 为空");
 
         IsLoggedIn = true;
         gpnuClient.serviceContainer.AddExisted(this);
@@ -54,7 +54,7 @@ public class CasHandler
             await UpdateHttpClientTgc(gpnuClient.client);
         }
             
-        return null;
+        return CasLoginResult.CreateSuccess(ticketResponse.data.Ticket, ticketResponse.data.Tgt);
     }
     
     public async Task LoginByTgt(string tgt, bool updateTgc = true)
@@ -69,6 +69,7 @@ public class CasHandler
 
     public async Task UpdateHttpClientTgc(HttpClient httpClient)
     {
+        EnsureLoggedIn();
         var st = await GenerateServiceTicket();
         var reqMsg = new HttpRequestMessage(HttpMethod.Get, $"https://webauth.gpnu.edu.cn/wengine-auth/login?cas_login=true&ticket={st}");
         var req = await httpClient.SendAsync(reqMsg);
