@@ -19,13 +19,15 @@ public class AttributesGenerator : IIncrementalGenerator
                                namespace OhMyDearGpnu.Api.Requests;
 
                                [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-                               internal sealed class RequestAttribute(PayloadTypeEnum PayloadType) : Attribute
+                               internal sealed class RequestAttribute(PayloadTypeEnum payloadType) : Attribute
                                {
+                                   public PayloadTypeEnum PayloadType { get; init; } = payloadType;
                                }
 
                                [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-                               internal sealed class FormItemAttribute(string Name) : Attribute
+                               internal sealed class FormItemAttribute(string name) : Attribute
                                {
+                                   public string Name { get; init; } = name;
                                }
                                """;
 
