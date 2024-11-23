@@ -13,7 +13,7 @@ public class RequestGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var pipeline = context.SyntaxProvider.ForAttributeWithMetadataName("OhMyDearGpnu.Api.Requests.RequestAttribute",
+        var pipeline = context.SyntaxProvider.ForAttributeWithMetadataName("OhMyDearGpnu.Api.Common.RequestAttribute",
             static (syntaxNode, ct) => syntaxNode is ClassDeclarationSyntax,
             static (context, ct) =>
             {
@@ -28,7 +28,7 @@ public class RequestGenerator : IIncrementalGenerator
                 if (payloadType != PayloadTypeEnum.FormUrlEncoded)
                     return (ns, cls, payloadType, null);
 
-                var attributeSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("OhMyDearGpnu.Api.Requests.FormItemAttribute");
+                var attributeSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("OhMyDearGpnu.Api.Common.FormItemAttribute");
                 var members = symbol.GetMembers();
                 var properties = members.OfType<IPropertySymbol>()
                     .Select(symbol => (symbol, ad: symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.Equals(attributeSymbol, SymbolEqualityComparer.Default) ?? false)))
@@ -71,7 +71,7 @@ public class RequestGenerator : IIncrementalGenerator
             }
 
             var source = SourceText.From($$"""
-                                           using OhMyDearGpnu.Api.Requests;
+                                           using OhMyDearGpnu.Api.Common;
                                            using OhMyDearGpnu.Api.Utility;
 
                                            using System.Net;

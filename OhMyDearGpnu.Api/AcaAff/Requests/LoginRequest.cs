@@ -1,12 +1,9 @@
-﻿using System.Text;
+﻿using AngleSharp.Html.Parser;
 
-using AngleSharp.Html.Parser;
-
-using OhMyDearGpnu.Api.Modules;
-using OhMyDearGpnu.Api.Responses;
+using OhMyDearGpnu.Api.Common;
 using OhMyDearGpnu.Api.Utility;
 
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.FormUrlEncoded)]
 public partial class LoginRequest : BaseWithDataResponseRequest

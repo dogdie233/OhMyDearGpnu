@@ -1,6 +1,6 @@
 ﻿using OhMyDearGpnu;
 using OhMyDearGpnu.Api;
-using OhMyDearGpnu.Api.Requests;
+using OhMyDearGpnu.Api.AcaAff.Requests;
 
 var client = new GpnuClient();
 
@@ -24,7 +24,10 @@ if (casHandler is not null)
         var casCaptcha = await casHandler.GetPasswordLoginCaptcha();
         File.Delete("casCaptcha.png");
         using (var fs = File.Create("casCaptcha.png"))
+        {
             await fs.WriteAsync(casCaptcha.image);
+        }
+
         Console.WriteLine("已将验证码保存至casCaptcha.png");
         Console.Write("请输入验证码结果: ");
         casCaptcha.value = Console.ReadLine();
@@ -35,6 +38,7 @@ if (casHandler is not null)
             return;
         }
     }
+
     Console.WriteLine($"cas 登录成功，TGT为{casHandler.Tgt}，回到教务管理系统登录流程");
 }
 
@@ -42,7 +46,10 @@ Console.WriteLine("正在获取验证码");
 var captcha = (await client.GetCaptcha()).data!;
 File.Delete("captcha.jpg");
 using (var fs = File.Create("captcha.jpg"))
+{
     await captcha.imageStream.CopyToAsync(fs);
+}
+
 Console.WriteLine("已将验证码保存至captcha.jpg");
 Console.Write("请输入验证码: ");
 captcha.value = Console.ReadLine();
@@ -77,7 +84,10 @@ if (loginRes.IsSucceeded)
         Console.Write($"{curriculum.Classroom.PadRight(10, ' ')}");
         Console.WriteLine();
     }
+
     Console.WriteLine("============================");
 }
 else
+{
     Console.WriteLine($"登录失败，{loginRes.message}");
+}

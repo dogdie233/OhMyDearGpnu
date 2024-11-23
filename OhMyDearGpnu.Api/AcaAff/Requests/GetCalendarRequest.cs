@@ -1,9 +1,7 @@
-﻿using AngleSharp.Dom;
-
+﻿using OhMyDearGpnu.Api.Common;
 using OhMyDearGpnu.Api.Modules;
-using OhMyDearGpnu.Api.Responses;
 
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.None)]
 public partial class GetCalendarRequest : BaseWithDataResponseRequest<Calendar>

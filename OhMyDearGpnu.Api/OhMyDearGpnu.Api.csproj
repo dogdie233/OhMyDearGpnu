@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="AcaAff\"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <Analyzer Include="..\OhMyDearGpnu.Api.SourceGenerator\bin\$(Configuration)\netstandard2.0\OhMyDearGpnu.Api.SourceGenerator.dll"/>
         <ProjectReference Include="..\OhMyDearGpnu.Api.SourceGenerator\OhMyDearGpnu.Api.SourceGenerator.csproj"/>
     </ItemGroup>

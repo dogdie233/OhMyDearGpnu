@@ -10,7 +10,7 @@ public class PayloadTypeEnumGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(static context =>
         {
             var source = """
-                         namespace OhMyDearGpnu.Api.Requests;
+                         namespace OhMyDearGpnu.Api.Common;
 
                          public enum PayloadTypeEnum
                          {

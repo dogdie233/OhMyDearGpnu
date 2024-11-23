@@ -1,9 +1,10 @@
-﻿using OhMyDearGpnu.Api.Modules;
-using OhMyDearGpnu.Api.Responses;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+using OhMyDearGpnu.Api.AcaAff.Responses;
+using OhMyDearGpnu.Api.Common;
+using OhMyDearGpnu.Api.Modules;
 
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.FormUrlEncoded)]
 public partial class GetCurriculumInfosRequest : BaseWithDataResponseRequest<CurriculumInfo[]>

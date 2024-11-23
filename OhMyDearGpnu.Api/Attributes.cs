@@ -39,17 +39,6 @@ public class FromPageCacheAttribute : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-public class EncryptAttribute : Attribute
-{
-    public readonly string publicKeyUri;
-
-    public EncryptAttribute(string publicKeyUri)
-    {
-        this.publicKeyUri = publicKeyUri;
-    }
-}
-
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class AliasAttribute : Attribute
 {

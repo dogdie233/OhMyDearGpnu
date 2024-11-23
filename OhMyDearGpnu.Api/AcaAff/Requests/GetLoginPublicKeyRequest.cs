@@ -1,8 +1,9 @@
-﻿using OhMyDearGpnu.Api.Responses;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+using OhMyDearGpnu.Api.AcaAff.Responses;
+using OhMyDearGpnu.Api.Common;
 
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.None)]
 public partial class GetLoginPublicKeyRequest : BaseWithDataResponseRequest<GetLoginPublicKeyData>

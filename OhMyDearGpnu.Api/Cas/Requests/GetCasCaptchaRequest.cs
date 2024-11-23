@@ -1,8 +1,7 @@
 ﻿using System.Net.Http.Json;
 
 using OhMyDearGpnu.Api.Cas.Responses;
-using OhMyDearGpnu.Api.Requests;
-using OhMyDearGpnu.Api.Responses;
+using OhMyDearGpnu.Api.Common;
 using OhMyDearGpnu.Api.Utility;
 
 namespace OhMyDearGpnu.Api.Cas.Requests;

@@ -1,7 +1,6 @@
 ﻿using System.Net;
 
-using OhMyDearGpnu.Api.Requests;
-using OhMyDearGpnu.Api.Responses;
+using OhMyDearGpnu.Api.Common;
 
 namespace OhMyDearGpnu.Api.Cas.Requests;
 

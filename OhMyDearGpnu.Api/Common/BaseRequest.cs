@@ -1,12 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using System.Reflection;
 
-using OhMyDearGpnu.Api.Responses;
-using OhMyDearGpnu.Api.Utility;
-
-using System.Reflection;
-using System.Text.Json;
-
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.Common;
 
 public abstract class BaseWithDataResponseRequest
 {

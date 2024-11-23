@@ -16,7 +16,7 @@ public class AttributesGenerator : IIncrementalGenerator
         var requestAttribute = """
                                using System;
 
-                               namespace OhMyDearGpnu.Api.Requests;
+                               namespace OhMyDearGpnu.Api.Common;
 
                                [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
                                internal sealed class RequestAttribute(PayloadTypeEnum payloadType) : Attribute

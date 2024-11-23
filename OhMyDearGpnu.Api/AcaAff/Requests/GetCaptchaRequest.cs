@@ -1,8 +1,7 @@
-﻿using OhMyDearGpnu.Api.Modules;
-using OhMyDearGpnu.Api.Responses;
+﻿using OhMyDearGpnu.Api.Common;
 using OhMyDearGpnu.Api.Utility;
 
-namespace OhMyDearGpnu.Api.Requests;
+namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.None)]
 public partial class GetCaptchaRequest : BaseWithDataResponseRequest<Captcha>
