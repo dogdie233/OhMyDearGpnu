@@ -2,7 +2,7 @@
 
 namespace OhMyDearGpnu.Api.Cas.Responses;
 
-public class PostTicketResponse
+public class LoginResponse
 {
     [JsonPropertyName("meta")] public MetaModel? Meta { get; set; }
     [JsonPropertyName("data")] public DataModel? Data { get; set; }

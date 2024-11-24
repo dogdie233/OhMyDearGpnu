@@ -21,19 +21,21 @@ public class RequestGenerator : IIncrementalGenerator
                 var symbol = (INamedTypeSymbol)context.TargetSymbol;
                 var cls = symbol.Name;
 
+                var generic = symbol.TypeParameters.Length == 0 ? "" : $"<{string.Join(", ", symbol.TypeParameters.Select(v => v.ToString()))}>";
+
                 var payloadTypeStr = context.Attributes[0].ConstructorArguments[0].Value!.ToString();
                 if (!Enum.TryParse<PayloadTypeEnum>(payloadTypeStr.Contains('.') ? payloadTypeStr.Substring(payloadTypeStr.LastIndexOf('.')) : payloadTypeStr, out var payloadType))
                     payloadType = PayloadTypeEnum.None;
 
                 if (payloadType != PayloadTypeEnum.FormUrlEncoded)
-                    return (ns, cls, payloadType, null);
+                    return (ns, cls, generic, payloadType, null);
 
                 var attributeSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("OhMyDearGpnu.Api.Common.FormItemAttribute");
                 var members = symbol.GetMembers();
                 var properties = members.OfType<IPropertySymbol>()
                     .Select(symbol => (symbol, ad: symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.Equals(attributeSymbol, SymbolEqualityComparer.Default) ?? false)))
                     .Where(info => info.ad != null);
-                return (ns, cls, payloadType, properties: properties.ToArray());
+                return (ns, cls, generic, payloadType, properties: properties.ToArray());
             });
 
         context.RegisterSourceOutput(pipeline, static (context, data) =>
@@ -80,7 +82,7 @@ public class RequestGenerator : IIncrementalGenerator
 
                                            namespace {{data.ns}};
 
-                                           partial class {{data.cls}}
+                                           partial class {{data.cls}}{{data.generic}}
                                            {
                                            #nullable enable
                                                public override HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer)
