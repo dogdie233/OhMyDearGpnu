@@ -6,3 +6,14 @@ public class CasNotLoggedInException : Exception
     {
     }
 }
+
+public class CasTgtInvalidException : Exception
+{
+    public CasTgtInvalidException() : base("CAS TGT invalid.")
+    {
+    }
+
+    public CasTgtInvalidException(string message) : base(message)
+    {
+    }
+}

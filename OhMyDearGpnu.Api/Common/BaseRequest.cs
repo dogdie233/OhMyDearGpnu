@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Http.Headers;
+using System.Reflection;
 
 namespace OhMyDearGpnu.Api.Common;
 
@@ -28,6 +29,11 @@ public abstract class BaseWithDataResponseRequest
             var value = info.attribute.ParseValue(cache);
             info.field.SetValue(this, value);
         }
+    }
+
+    public virtual AuthenticationHeaderValue? GetAuthenticationHeaderValue(SimpleServiceContainer serviceContainer)
+    {
+        return null;
     }
 
     public abstract HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer);
