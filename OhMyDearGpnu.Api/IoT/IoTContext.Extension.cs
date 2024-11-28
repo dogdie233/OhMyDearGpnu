@@ -15,4 +15,9 @@ public static class IoTContextExtension
     {
         return context.GpnuClient.SendRequest(new GetElectricBalanceRequest(context.Token, roomCode, useEleType));
     }
+
+    public static Task<DataResponse<ElectricDeductionHistoryModel>> GetElectricDeductionHistory(this IoTContext context, int pageNumber, string roomCode, string username, int pageSize = 15, int useEleType = 1)
+    {
+        return context.GpnuClient.SendRequest(new GetElectricDeductionHistoryRequest(context.Token, pageNumber, pageSize, roomCode, username, useEleType));
+    }
 }
