@@ -6,6 +6,12 @@ public partial class Image
     public int Height { get; init; }
     public Rgba[] Pixels { get; init; }
 
+    public Rgba this[int x, int y]
+    {
+        get => Pixels[y * Width + x];
+        set => Pixels[y * Width + x] = value;
+    }
+
     public Image(int width, int height, Rgba[] pixels)
     {
         if (pixels.Length != width * height)

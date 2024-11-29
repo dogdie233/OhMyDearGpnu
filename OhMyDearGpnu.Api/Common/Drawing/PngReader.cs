@@ -1,8 +1,11 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable IdentifierTypo
 
+using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
+
+using OhMyDearGpnu.Api.Utility;
 
 namespace OhMyDearGpnu.Api.Common.Drawing;
 
@@ -18,7 +21,7 @@ internal class PngReader
         try
         {
             using var br = new BinaryReader(stream);
-            if (br.ReadUInt32() != 0x89504E47 && br.ReadUInt32() != 0x0D0A1A0A)
+            if (br.ReadUInt32BigEndian() != 0x89504E47 || br.ReadUInt32BigEndian() != 0x0D0A1A0A)
                 throw new InvalidImageDataException("Invalid PNG signature");
 
             ReadChunks(br);
@@ -37,8 +40,8 @@ internal class PngReader
     {
         while (true)
         {
-            var length = br.ReadUInt32();
-            var type = br.ReadUInt32();
+            var length = br.ReadUInt32BigEndian();
+            var type = br.ReadUInt32BigEndian();
             switch (type)
             {
                 case 0x49484452:
@@ -63,8 +66,8 @@ internal class PngReader
     {
         _hdr = new IHDRChunk
         {
-            width = br.ReadInt32(),
-            height = br.ReadInt32(),
+            width = br.ReadInt32BigEndian(),
+            height = br.ReadInt32BigEndian(),
             bitDepth = br.ReadByte(),
             colorType = br.ReadByte(),
             compressionMethod = br.ReadByte(),
@@ -132,7 +135,7 @@ internal class PngReader
     private static byte[] Decompress(byte[] data)
     {
         using (var compressedStream = new MemoryStream(data))
-        using (var decompressionStream = new DeflateStream(compressedStream, CompressionMode.Decompress))
+        using (var decompressionStream = new ZLibStream(compressedStream, CompressionMode.Decompress))
         using (var resultStream = new MemoryStream())
         {
             decompressionStream.CopyTo(resultStream);

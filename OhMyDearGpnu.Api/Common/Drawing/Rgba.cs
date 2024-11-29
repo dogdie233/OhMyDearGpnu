@@ -3,7 +3,7 @@
 namespace OhMyDearGpnu.Api.Common.Drawing;
 
 [StructLayout(LayoutKind.Explicit)]
-public record struct Rgba
+public struct Rgba : IEquatable<Rgba>, IEquatable<Rgba?>
 {
     [FieldOffset(0)] public byte r;
     [FieldOffset(1)] public byte g;
@@ -23,5 +23,35 @@ public record struct Rgba
     public Rgba(uint value)
     {
         this.value = value;
+    }
+
+    public bool Equals(Rgba other)
+    {
+        return value == other.value;
+    }
+
+    public bool Equals(Rgba? other)
+    {
+        return other.HasValue && Equals(other.Value);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Rgba other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return (int)value;
+    }
+
+    public static bool operator ==(Rgba left, Rgba right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Rgba left, Rgba right)
+    {
+        return !left.Equals(right);
     }
 }

@@ -39,6 +39,7 @@ public class GpnuClient
 
         serviceContainer.Register<PageCacheManager>();
         serviceContainer.Register<IoT.IoTContext>(_ => IoT.IoTContext.CreateByServiceTicket(this));
+        serviceContainer.Register<ICasCaptchaResolver>(_ => new SimpleCasCaptchaResolver());
     }
 
     public async Task<Response> SendRequest(BaseWithDataResponseRequest request)

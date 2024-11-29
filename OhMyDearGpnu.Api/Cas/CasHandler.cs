@@ -2,6 +2,7 @@
 
 using OhMyDearGpnu.Api.Cas.Requests;
 using OhMyDearGpnu.Api.Cas.Responses;
+using OhMyDearGpnu.Api.Common.Drawing;
 
 namespace OhMyDearGpnu.Api.Cas;
 
@@ -35,6 +36,13 @@ public class CasHandler
 
     public async Task<CasLoginResult> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true, string? service = null)
     {
+        if (casCaptcha.value is null)
+        {
+            if (!gpnuClient.serviceContainer.TryLocate<ICasCaptchaResolver>(out var captchaResolver))
+                throw new Exception($"No {nameof(ICasCaptchaResolver)} registered in service container and casCaptcha value is null.");
+            casCaptcha.value = await captchaResolver.ResolveCaptchaAsync(Image.FromSimplePng(casCaptcha.image));
+        }
+
         service ??= defaultService;
         var ticketResponse = await gpnuClient.SendRequest(new LoginRequest(username, password, casCaptcha, service));
         if (!ticketResponse.IsSucceeded)

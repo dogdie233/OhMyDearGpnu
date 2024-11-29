@@ -1,4 +1,6 @@
-﻿namespace OhMyDearGpnu.Api;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace OhMyDearGpnu.Api;
 
 public static class SimpleServiceContainerExtension
 {
@@ -50,6 +52,18 @@ public static class SimpleServiceContainerExtension
     public static T Locate<T>(this SimpleServiceContainer container)
     {
         return (T)container.Locate(typeof(T));
+    }
+
+    public static bool TryLocate<T>(this SimpleServiceContainer container, [NotNullWhen(true)] out T? service)
+    {
+        if (container.TryLocate(typeof(T), out var serv))
+        {
+            service = (T)serv;
+            return true;
+        }
+
+        service = default;
+        return false;
     }
 
     public static SimpleServiceContainer AddExisted<TService, TImplementation>(this SimpleServiceContainer container, TImplementation implementation)
