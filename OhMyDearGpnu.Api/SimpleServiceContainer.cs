@@ -61,9 +61,10 @@ public class SimpleServiceContainer
 
         if (implementation == null)
             throw new NoNullAllowedException("The implementation instance can't be null");
+
         var realImplType = implementation.GetType();
-        if (implementationType != realImplType)
-            throw new InvalidOperationException($"A unexpected implementation type {realImplType.FullName} was build, but expected is {implementationType}");
+        if (!realImplType.IsAssignableTo(implementationType))
+            throw new InvalidOperationException($"A unexpected implementation type {realImplType.FullName} was build, cannot be cast to {implementationType}");
         return implementation;
     }
 
