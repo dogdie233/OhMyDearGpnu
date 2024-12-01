@@ -26,37 +26,26 @@ public class CasHandler
     //    
     // }
 
-    public async Task<CasCaptcha> GetPasswordLoginCaptcha()
+    public ValueTask<CasCaptcha> GetPasswordLoginCaptcha()
     {
-        var res = await gpnuClient.SendRequest(new GetCasCaptchaRequest());
-        if (!res.IsSucceeded)
-            throw new Exception("Failed to get CAS captcha.");
-        return res.data!;
+        return gpnuClient.SendRequest(new GetCasCaptchaRequest());
     }
 
-    public async Task<CasLoginResult> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true, string? service = null)
+    public async ValueTask<(string ticket, string tgt)> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true, string? service = null)
     {
         if (casCaptcha.value is null)
         {
-            if (!gpnuClient.serviceContainer.TryLocate<ICasCaptchaResolver>(out var captchaResolver))
-                throw new Exception($"No {nameof(ICasCaptchaResolver)} registered in service container and casCaptcha value is null.");
+            var captchaResolver = gpnuClient.serviceContainer.Locate<ICasCaptchaResolver>();
             casCaptcha.value = await captchaResolver.ResolveCaptchaAsync(Image.FromSimplePng(casCaptcha.image));
         }
 
         service ??= defaultService;
         var ticketResponse = await gpnuClient.SendRequest(new LoginRequest(username, password, casCaptcha, service));
-        if (!ticketResponse.IsSucceeded)
-            return CasLoginResult.CreateFail(ticketResponse.message ?? "未知原因");
 
-        var ticketError = TranslateTicketError(ticketResponse.data);
-        if (ticketError is not null)
-            return CasLoginResult.CreateFail(ticketError);
-
-        if (ticketResponse.data is { Ticket: null } or { Tgt: null })
-            return CasLoginResult.CreateFail("未知错误: Ticket 或 Tgt 为空");
+        EnsureLoginSuccess(ticketResponse);
 
         IsLoggedIn = true;
-        Tgt = ticketResponse.data.Tgt;
+        Tgt = ticketResponse.Tgt!;
 
         if (updateTgc)
         {
@@ -64,13 +53,14 @@ public class CasHandler
             await UpdateWebAuthCookie(gpnuClient.client);
         }
 
-        return CasLoginResult.CreateSuccess(ticketResponse.data.Ticket, ticketResponse.data.Tgt);
+        return (ticketResponse.Ticket!, ticketResponse.Tgt!);
     }
 
-    public async Task LoginByTgt(string tgt, bool updateTgc = true)
+    public async ValueTask LoginByTgt(string tgt, bool updateTgc = true)
     {
         if (!await CheckTgtValid(tgt))
             throw new CasTgtInvalidException();
+
         IsLoggedIn = true;
         Tgt = tgt;
 
@@ -78,7 +68,7 @@ public class CasHandler
             await UpdateWebAuthCookie(gpnuClient.client);
     }
 
-    public async Task UpdateWebAuthCookie(HttpClient httpClient)
+    public async ValueTask UpdateWebAuthCookie(HttpClient httpClient)
     {
         EnsureLoggedIn();
         var st = await GenerateServiceTicket(webAuthLoginService);
@@ -87,13 +77,10 @@ public class CasHandler
         req.EnsureSuccessStatusCode();
     }
 
-    public async Task<string> GenerateServiceTicket(string service)
+    public ValueTask<string> GenerateServiceTicket(string service)
     {
         EnsureLoggedIn();
-        var res = await gpnuClient.SendRequest(new GetServiceTicketRequest(Tgt, service));
-        if (!res.IsSucceeded)
-            throw new CasTgtInvalidException(res.message ?? "Failed to generate service ticket.");
-        return res.data;
+        return gpnuClient.SendRequest(new GetServiceTicketRequest(Tgt, service));
     }
 
     [MemberNotNull(nameof(Tgt))]
@@ -103,24 +90,36 @@ public class CasHandler
             throw new CasNotLoggedInException();
     }
 
-    private async Task<bool> CheckTgtValid(string tgt)
+    private async ValueTask<bool> CheckTgtValid(string tgt)
     {
-        var res = await gpnuClient.SendRequest(new GetServiceTicketRequest(tgt, defaultService));
-        return res.IsSucceeded;
+        try
+        {
+            await gpnuClient.SendRequest(new GetServiceTicketRequest(tgt, defaultService));
+        }
+        catch (UnexpectedResponseException e)
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    private static string? TranslateTicketError(LoginResponse ticketResponse)
+    private static void EnsureLoginSuccess(LoginResponse ticketResponse)
     {
-        if (ticketResponse.Data is null)
-            return null;
-
-        var data = ticketResponse.Data;
-        return data.Code switch
+        if (ticketResponse.Data is not null)
         {
-            "CODEFALSE" => "验证码错误",
-            "PASSERROR" => $"密码错误，已尝试 {data.Data[(data.Data.IndexOf(',') + 1) ..]} 次，总共可尝试 {..data.Data.IndexOf(',')} 次",
-            "NOUSER" => "用户不存在",
-            _ => $"未知的错误: Code {data.Code}, Data: {data.Data}"
-        };
+            var data = ticketResponse.Data;
+            var info = data.Code switch
+            {
+                "CODEFALSE" => (CasLoginFailException.LoginFailReasonType.CodeFalse, "验证码错误"),
+                "PASSERROR" => (CasLoginFailException.LoginFailReasonType.PassError, $"密码错误，已尝试 {data.Data[(data.Data.IndexOf(',') + 1) ..]} 次，总共可尝试 {..data.Data.IndexOf(',')} 次"),
+                "NOUSER" => (CasLoginFailException.LoginFailReasonType.NoUser, "用户不存在"),
+                _ => (CasLoginFailException.LoginFailReasonType.Unknown, $"未知的错误: Code {data.Code}, Data: {data.Data}")
+            };
+            throw new CasLoginFailException(info.Item1, info.Item2);
+        }
+
+        if (ticketResponse is { Ticket: null } or { Tgt: null })
+            throw new UnexpectedResponseException("ticket or tgt is null");
     }
 }

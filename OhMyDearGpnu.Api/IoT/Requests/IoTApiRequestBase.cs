@@ -6,7 +6,7 @@ using OhMyDearGpnu.Api.IoT.Models;
 
 namespace OhMyDearGpnu.Api.IoT.Requests;
 
-public abstract class IoTApiRequestBase<T> : BaseWithDataResponseRequest<T> where T : class
+public abstract class IoTApiRequestBase<T> : BaseRequest<T> where T : class
 {
     private string token;
 
@@ -20,11 +20,12 @@ public abstract class IoTApiRequestBase<T> : BaseWithDataResponseRequest<T> wher
         return new AuthenticationHeaderValue(token);
     }
 
-    public override async Task<DataResponse<T>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override async ValueTask<T> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         responseMessage.EnsureSuccessStatusCode();
         var res = await responseMessage.Content.ReadFromJsonAsync<IoTApiResponseModelBase<T>>();
-        var data = res?.Data;
-        return data == null ? DataResponse<T>.Fail("Return a empty response") : DataResponse<T>.Success(data);
+        if (res?.Data == null)
+            throw new UnexpectedResponseException("Failed to deserialize the response data.");
+        return res.Data;
     }
 }

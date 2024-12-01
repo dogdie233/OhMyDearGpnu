@@ -42,24 +42,24 @@ public class GpnuClient
         serviceContainer.Register<ICasCaptchaResolver>(_ => new SimpleCasCaptchaResolver());
     }
 
-    public async Task<Response> SendRequest(BaseWithDataResponseRequest request)
+    public async ValueTask SendRequest(BaseRequest request)
     {
         await request.FillAutoFieldAsync(serviceContainer);
         var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Url);
         reqMsg.Headers.Authorization = request.GetAuthenticationHeaderValue(serviceContainer);
         reqMsg.Content = request.CreateHttpContent(serviceContainer);
         var resMsg = await SendRequestMessageAsync(reqMsg);
-        var res = await request.CreateResponseAsync(serviceContainer, resMsg);
-        return res;
+        await request.ValidResponse(serviceContainer, resMsg);
     }
 
-    public async Task<DataResponse<TData>> SendRequest<TData>(BaseWithDataResponseRequest<TData> request)
+    public async ValueTask<TData> SendRequest<TData>(BaseRequest<TData> request)
     {
         await request.FillAutoFieldAsync(serviceContainer);
         var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Url);
         reqMsg.Headers.Authorization = request.GetAuthenticationHeaderValue(serviceContainer);
         reqMsg.Content = request.CreateHttpContent(serviceContainer);
         var resMsg = await SendRequestMessageAsync(reqMsg);
+        await request.ValidResponse(serviceContainer, resMsg);
         var res = await request.CreateDataResponseAsync(serviceContainer, resMsg);
         return res;
     }

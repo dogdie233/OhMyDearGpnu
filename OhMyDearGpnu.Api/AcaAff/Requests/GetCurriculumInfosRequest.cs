@@ -7,7 +7,7 @@ using OhMyDearGpnu.Api.Modules;
 namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.FormUrlEncoded)]
-public partial class GetCurriculumInfosRequest : BaseWithDataResponseRequest<CurriculumInfo[]>
+public partial class GetCurriculumInfosRequest : BaseRequest<CurriculumInfo[]>
 {
     public override Uri Url => new(Hosts.acaAff, "jwglxt/kbcx/xskbcx_cxXsgrkb.html");
 
@@ -24,7 +24,7 @@ public partial class GetCurriculumInfosRequest : BaseWithDataResponseRequest<Cur
 
     public override HttpMethod HttpMethod => HttpMethod.Post;
 
-    public override async Task<DataResponse<CurriculumInfo[]>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override async ValueTask<CurriculumInfo[]> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         using var document = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
         var root = document.RootElement;
@@ -53,6 +53,6 @@ public partial class GetCurriculumInfosRequest : BaseWithDataResponseRequest<Cur
             results.Add(curriculumInfo);
         }
 
-        return DataResponse<CurriculumInfo[]>.Success(results.ToArray());
+        return results.ToArray();
     }
 }

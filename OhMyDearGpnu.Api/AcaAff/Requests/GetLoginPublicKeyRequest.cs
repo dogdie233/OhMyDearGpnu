@@ -6,7 +6,7 @@ using OhMyDearGpnu.Api.Common;
 namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.None)]
-public partial class GetLoginPublicKeyRequest : BaseWithDataResponseRequest<GetLoginPublicKeyData>
+public partial class GetLoginPublicKeyRequest : BaseRequest<GetLoginPublicKeyData>
 {
     public readonly ulong timestamp;
 
@@ -18,13 +18,13 @@ public partial class GetLoginPublicKeyRequest : BaseWithDataResponseRequest<GetL
     public override Uri Url => new(Hosts.acaAff, $"jwglxt/xtgl/login_getPublicKey.html?time={timestamp}");
     public override HttpMethod HttpMethod => HttpMethod.Get;
 
-    public override async Task<DataResponse<GetLoginPublicKeyData>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override async ValueTask<GetLoginPublicKeyData> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         responseMessage.EnsureSuccessStatusCode();
         var content = await responseMessage.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<GetLoginPublicKeyData>(content);
-        return data != null
-            ? DataResponse<GetLoginPublicKeyData>.Success(data)
-            : DataResponse<GetLoginPublicKeyData>.Fail("Json反序列化失败");
+        if (data == null)
+            throw new UnexpectedResponseException("Failed to deserialize the response data.");
+        return data;
     }
 }

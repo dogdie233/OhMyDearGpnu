@@ -1,19 +1,14 @@
 ﻿namespace OhMyDearGpnu.Api;
 
-public class CasNotLoggedInException : Exception
+public class UnexpectedResponseException(string message) : Exception(message)
 {
-    public CasNotLoggedInException() : base("CAS not logged in.")
+    public static async ValueTask<UnexpectedResponseException> FromHttpContentAsync(HttpResponseMessage response, string defaultMessage = "Invalid response data")
     {
+        var message = await response.Content.ReadAsStringAsync();
+        return new UnexpectedResponseException(string.IsNullOrEmpty(message) ? defaultMessage : message);
     }
 }
 
-public class CasTgtInvalidException : Exception
+public class WebAuthRequiredException : Exception
 {
-    public CasTgtInvalidException() : base("CAS TGT invalid.")
-    {
-    }
-
-    public CasTgtInvalidException(string message) : base(message)
-    {
-    }
 }

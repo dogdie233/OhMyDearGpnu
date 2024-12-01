@@ -7,12 +7,12 @@ using OhMyDearGpnu.Api.Utility;
 namespace OhMyDearGpnu.Api.AcaAff.Requests;
 
 [Request(PayloadTypeEnum.None)]
-public partial class PersonInfoRequest : BaseWithDataResponseRequest<PersonInfoResponse>
+public partial class PersonInfoRequest : BaseRequest<PersonInfoResponse>
 {
     public override Uri Url { get; } = new(Hosts.acaAff, "jwglxt/xsxxxggl/xsgrxxwh_cxXsgrxx.html?gnmkdm=N100801&layout=default");
     public override HttpMethod HttpMethod => HttpMethod.Get;
 
-    public override async Task<DataResponse<PersonInfoResponse>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override async ValueTask<PersonInfoResponse> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         var cacheManager = serviceContainer.Locate<PageCacheManager>();
         var cache = cacheManager.GetCache(Url.ToString());
@@ -48,6 +48,6 @@ public partial class PersonInfoRequest : BaseWithDataResponseRequest<PersonInfoR
             deserializer.Write(labelText, value);
         }
 
-        return DataResponse<PersonInfoResponse>.Success(result);
+        return result;
     }
 }

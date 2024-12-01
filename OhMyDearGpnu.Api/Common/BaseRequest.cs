@@ -3,12 +3,12 @@ using System.Reflection;
 
 namespace OhMyDearGpnu.Api.Common;
 
-public abstract class BaseWithDataResponseRequest
+public abstract class BaseRequest
 {
     public abstract Uri Url { get; }
     public abstract HttpMethod HttpMethod { get; }
 
-    public virtual async Task FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
+    public virtual async ValueTask FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
     {
         var pageCacheManager = serviceContainer.Locate<PageCacheManager>();
         (FieldInfo field, FromPageCacheAttribute attribute)[] fromCachePageFields = GetType().GetFields()
@@ -38,15 +38,15 @@ public abstract class BaseWithDataResponseRequest
 
     public abstract HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer);
 
-    public abstract Task<Response> CreateResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
+    public abstract ValueTask ValidResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
 }
 
-public abstract class BaseWithDataResponseRequest<TData> : BaseWithDataResponseRequest
+public abstract class BaseRequest<TData> : BaseRequest
 {
-    public override async Task<Response> CreateResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override ValueTask ValidResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
-        return await CreateDataResponseAsync(serviceContainer, responseMessage);
+        return ValueTask.CompletedTask;
     }
 
-    public abstract Task<DataResponse<TData>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
+    public abstract ValueTask<TData> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
 }

@@ -8,7 +8,7 @@ using OhMyDearGpnu.Api.Utility;
 namespace OhMyDearGpnu.Api.Cas.Requests;
 
 [Request(PayloadTypeEnum.FormUrlEncoded)]
-public partial class LoginRequest : BaseWithDataResponseRequest<LoginResponse>
+public partial class LoginRequest : BaseRequest<LoginResponse>
 {
     public static readonly byte[] publicExponent;
     public static readonly byte[] modulus;
@@ -42,19 +42,18 @@ public partial class LoginRequest : BaseWithDataResponseRequest<LoginResponse>
         Service = service;
     }
 
-    public override async Task FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
+    public override async ValueTask FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
     {
         await base.FillAutoFieldAsync(serviceContainer);
         EncryptedPassword = EncryptHelper.CasPasswordEncrypt(password, publicExponent, modulus);
     }
 
-    public override async Task<DataResponse<LoginResponse>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override async ValueTask<LoginResponse> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
-        if (responseMessage.StatusCode != HttpStatusCode.OK)
-            return DataResponse<LoginResponse>.Fail($"StatusCode is {responseMessage.StatusCode} instead of OK");
+        responseMessage.EnsureSuccessStatusCode();
         var payload = await responseMessage.Content.ReadFromJsonAsync<LoginResponse>();
-        return payload == null
-            ? DataResponse<LoginResponse>.Fail("Failed to deserialize response")
-            : DataResponse<LoginResponse>.Success(payload);
+        if (payload == null)
+            throw new UnexpectedResponseException("Failed to deserialize response");
+        return payload;
     }
 }
