@@ -28,7 +28,7 @@ public class RequestGenerator : IIncrementalGenerator
                     payloadType = PayloadTypeEnum.None;
 
                 if (payloadType != PayloadTypeEnum.FormUrlEncoded)
-                    return (ns, cls, generic, payloadType, null);
+                    return (ns, cls, generic, payloadType, null!);
 
                 var attributeSymbol = context.SemanticModel.Compilation.GetTypeByMetadataName("OhMyDearGpnu.Api.Common.FormItemAttribute");
                 var members = symbol.GetMembers();
