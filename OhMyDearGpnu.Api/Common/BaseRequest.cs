@@ -38,12 +38,12 @@ public abstract class BaseRequest
 
     public abstract HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer);
 
-    public abstract ValueTask ValidResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
+    public abstract ValueTask EnsureResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage);
 }
 
 public abstract class BaseRequest<TData> : BaseRequest
 {
-    public override ValueTask ValidResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    public override ValueTask EnsureResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         return ValueTask.CompletedTask;
     }

@@ -26,12 +26,12 @@ public class CasHandler
     //    
     // }
 
-    public ValueTask<CasCaptcha> GetPasswordLoginCaptcha()
+    public Task<CasCaptcha> GetPasswordLoginCaptcha()
     {
         return gpnuClient.SendRequest(new GetCasCaptchaRequest());
     }
 
-    public async ValueTask<(string ticket, string tgt)> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true, string? service = null)
+    public async Task<(string ticket, string tgt)> LoginByPassword(string username, string password, CasCaptcha casCaptcha, bool updateTgc = true, string? service = null)
     {
         if (casCaptcha.value is null)
         {
@@ -56,7 +56,7 @@ public class CasHandler
         return (ticketResponse.Ticket!, ticketResponse.Tgt!);
     }
 
-    public async ValueTask LoginByTgt(string tgt, bool updateTgc = true)
+    public async Task LoginByTgt(string tgt, bool updateTgc = true)
     {
         if (!await CheckTgtValid(tgt))
             throw new CasTgtInvalidException();
@@ -68,7 +68,7 @@ public class CasHandler
             await UpdateWebAuthCookie(gpnuClient.client);
     }
 
-    public async ValueTask UpdateWebAuthCookie(HttpClient httpClient)
+    public async Task UpdateWebAuthCookie(HttpClient httpClient)
     {
         EnsureLoggedIn();
         var st = await GenerateServiceTicket(webAuthLoginService);
@@ -77,7 +77,7 @@ public class CasHandler
         req.EnsureSuccessStatusCode();
     }
 
-    public ValueTask<string> GenerateServiceTicket(string service)
+    public Task<string> GenerateServiceTicket(string service)
     {
         EnsureLoggedIn();
         return gpnuClient.SendRequest(new GetServiceTicketRequest(Tgt, service));
@@ -90,7 +90,7 @@ public class CasHandler
             throw new CasNotLoggedInException();
     }
 
-    private async ValueTask<bool> CheckTgtValid(string tgt)
+    private async Task<bool> CheckTgtValid(string tgt)
     {
         try
         {

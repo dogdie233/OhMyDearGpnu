@@ -5,7 +5,7 @@ using OhMyDearGpnu.Api.Common;
 
 namespace OhMyDearGpnu.Api;
 
-public class GpnuClient
+public sealed class GpnuClient
 {
     public readonly SimpleServiceContainer serviceContainer;
     public readonly CasHandler cas;
@@ -38,28 +38,29 @@ public class GpnuClient
         serviceContainer.AddExisted(cas);
 
         serviceContainer.Register<PageCacheManager>();
-        serviceContainer.Register<IoT.IoTContext>(_ => IoT.IoTContext.CreateByServiceTicket(this));
-        serviceContainer.Register<ICasCaptchaResolver>(_ => new SimpleCasCaptchaResolver());
+        serviceContainer.Register<IoT.IoTContext>(static container => IoT.IoTContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.Register<AcaAff.AcaAffContext>(static container => AcaAff.AcaAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.Register<ICasCaptchaResolver>(static _ => new SimpleCasCaptchaResolver());
     }
 
-    public async ValueTask SendRequest(BaseRequest request)
+    public async Task SendRequest(BaseRequest request)
     {
         await request.FillAutoFieldAsync(serviceContainer);
         var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Url);
         reqMsg.Headers.Authorization = request.GetAuthenticationHeaderValue(serviceContainer);
         reqMsg.Content = request.CreateHttpContent(serviceContainer);
         var resMsg = await SendRequestMessageAsync(reqMsg);
-        await request.ValidResponse(serviceContainer, resMsg);
+        await request.EnsureResponse(serviceContainer, resMsg);
     }
 
-    public async ValueTask<TData> SendRequest<TData>(BaseRequest<TData> request)
+    public async Task<TData> SendRequest<TData>(BaseRequest<TData> request)
     {
         await request.FillAutoFieldAsync(serviceContainer);
         var reqMsg = new HttpRequestMessage(request.HttpMethod, request.Url);
         reqMsg.Headers.Authorization = request.GetAuthenticationHeaderValue(serviceContainer);
         reqMsg.Content = request.CreateHttpContent(serviceContainer);
         var resMsg = await SendRequestMessageAsync(reqMsg);
-        await request.ValidResponse(serviceContainer, resMsg);
+        await request.EnsureResponse(serviceContainer, resMsg);
         var res = await request.CreateDataResponseAsync(serviceContainer, resMsg);
         return res;
     }

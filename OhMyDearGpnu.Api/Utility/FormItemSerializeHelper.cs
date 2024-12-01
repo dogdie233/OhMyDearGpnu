@@ -15,7 +15,6 @@ public static class FormItemSerializeHelper
 
     public static void InitCustomSerializer()
     {
-        AddCustomSerializer(typeof(Captcha), new CaptchaSerializer());
         AddCustomSerializer(typeof(CasCaptcha), new CasCaptchaSerializer());
     }
 
