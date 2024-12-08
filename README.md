@@ -1,7 +1,7 @@
 # Oh My Dear Gpnu
 一个 _广东技术师范大学教务管理系统_ 的后端API Wrapper  
 __本项目并非广东技术师范大学官方的项目__  
-> 高不高性能我就不知道了XD
+> 只有一点点的性能
 
 # 使用方法
 
@@ -9,15 +9,31 @@ __本项目并非广东技术师范大学官方的项目__
 2. 享用接口吧
 
 ```CSharp
-GpnuClient client = new GpnuClient();  // 创建一个客户端实例
-Cpatcha captcha = await client.SendRequest(new GetCaptchaRequest(null)).data;  // 使用实例化请求的方式获取验证码，这里忽略是否成功
-captcha.value = "这里自己解验证码";
-Response loginResponse = await client.Login("学号", "密码", captcha);  // 使用扩展方法的方式获取验证码
-if (!loginResponse.IsSucceeded)
+var client = new GpnuClient();  // 创建一个客户端实例
+var casHandler = client.cas;
+var captcha = await casHandler.GetPasswordLoginCaptcha();
+var useCaptchaResolver = true;  // 使用内置的验证码识别器（实验性功能）
+captcha.value = useCaptchaResolver ? null : "114514";  // 置null则使用内置的验证码识别器
+
+try
 {
-    throw new Exception("登录失败，" + loginResponse.message);
+    var casLoginRes = await casHandler.LoginByPassword(username, password, casCaptcha, true);
+    Console.WriteLine($"cas 登录成功，TGT为{casLoginRes.tgt}");
 }
-Console.WriteLine("登录成功");
+catch (CasLoginFailException e)
+{
+    Console.WriteLine($"cas 登录失败，原因：{e.Message}");
+    throw;
+}
+
+var acaAff = client.GetAcaAffContext();
+Console.WriteLine("正在获取个人信息");
+var personInfoResponse = await client.SendRequest(new PersonInfoRequest());  // 使用new一个Request的方式发送请求
+Console.WriteLine($"你好，{personInfoResponse.Name}({personInfoResponse.StudentID})");
+
+Console.WriteLine("正在获取日历");
+var calendar = await acaAff.GetCalendar();  // 使用扩展方法发送请求
+Console.WriteLine($"本周为第{calendar.CurrentWeek}周");
 ```
 
 # 项目结构
@@ -31,3 +47,6 @@ Console.WriteLine("登录成功");
 
 ## OhMyDearGpnu.Api.Test
 单元测试（还没写）
+
+## OhMyDearGpnu.Api.SourceGenerator
+用到的源生成器
