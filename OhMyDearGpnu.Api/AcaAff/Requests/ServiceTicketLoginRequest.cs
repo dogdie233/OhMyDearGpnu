@@ -7,7 +7,7 @@ namespace OhMyDearGpnu.Api.AcaAff.Requests;
 [Request(PayloadTypeEnum.None)]
 public partial class ServiceTicketLoginRequest(string ticket) : BaseRequest
 {
-    public override Uri Url => new(Hosts.acaAff, $"https://jwglxt.gpnu.edu.cn/sso/lyiotlogin?ticket={ticket}");
+    public override Uri Url => new(Hosts.acaAff, $"sso/lyiotlogin?ticket={ticket}");
     public override HttpMethod HttpMethod => HttpMethod.Get;
 
     public override ValueTask EnsureResponse(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)

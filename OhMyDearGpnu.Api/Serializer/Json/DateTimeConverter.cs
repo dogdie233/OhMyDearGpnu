@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace OhMyDearGpnu.Api.Serializer.Json;
 
-public class IoTDateTimeConverter : JsonConverter<DateTime>
+public class DateTimeConverter : JsonConverter<DateTime>
 {
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -35,7 +35,7 @@ public class ElectricDeductionHistoryModel
         [JsonPropertyName("consumeAmount")] public double ConsumeAmount { get; set; }
 
         [JsonPropertyName("consumeTime")]
-        [JsonConverter(typeof(IoTDateTimeConverter))]
+        [JsonConverter(typeof(DateTimeConverter))]
         public DateTime ConsumeTime { get; set; }
 
         [JsonPropertyName("consumeTypeName")] public string? ConsumeTypeName { get; set; }
@@ -50,11 +50,11 @@ public class ElectricDeductionHistoryModel
         /// 如果这条数据是记录的第一条数据，则此值为null
         /// </summary>
         [JsonPropertyName("lastReportTime")]
-        [JsonConverter(typeof(IoTNullableDateTimeConverter))]
+        [JsonConverter(typeof(NullableDateTimeConverter))]
         public DateTime? LastReportTime { get; set; }
 
         [JsonPropertyName("reportTime")]
-        [JsonConverter(typeof(IoTDateTimeConverter))]
+        [JsonConverter(typeof(DateTimeConverter))]
         public DateTime ReportTime { get; set; }
 
         [JsonPropertyName("lastReportElectric")]

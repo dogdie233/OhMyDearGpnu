@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -9,12 +9,11 @@
     <ItemGroup>
         <PackageReference Include="AngleSharp" Version="1.0.4"/>
         <PackageReference Include="AngleSharp.XPath" Version="2.0.3"/>
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Analyzer Include="..\OhMyDearGpnu.Api.SourceGenerator\bin\$(Configuration)\netstandard2.0\OhMyDearGpnu.Api.SourceGenerator.dll"/>
-        <ProjectReference Include="..\OhMyDearGpnu.Api.SourceGenerator\OhMyDearGpnu.Api.SourceGenerator.csproj"/>
+        <ProjectReference Include="..\OhMyDearGpnu.Api.SourceGenerator\OhMyDearGpnu.Api.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 </Project>
