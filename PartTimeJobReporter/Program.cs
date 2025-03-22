@@ -37,7 +37,7 @@ if (File.Exists(configFilePath))
     var configJson = await File.ReadAllTextAsync(configFilePath);
     try
     {
-        config = JsonSerializer.Deserialize<Config>(configJson);
+        config = JsonSerializer.Deserialize<Config>(configJson, SourceGeneratedJsonContext.Default.Config);
     }
     catch (JsonException ex)
     {
@@ -54,8 +54,8 @@ if (config == null)
     if (!noInteractive)
     {
         LogInfo("开始配置向导");
-        config.Username = AnsiConsole.Ask<string>("请输入你的用户名(cas)：");
-        config.Password = AnsiConsole.Ask<string>("请输入你的密码(cas)：");
+        config.Username = AnsiConsole.Ask<string>("请输入你的用户名(cas): ");
+        config.Password = AnsiConsole.Ask<string>("请输入你的密码(cas): ");
 
         List<MyJobModel>? jobs = null;
 
@@ -111,7 +111,7 @@ if (config == null)
         LogError("配置文件无效，重新生成");
     }
 
-    await File.WriteAllTextAsync(configFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
+    await WriteConfigAsync(configFilePath, config);
     LogInfo($"写入配置文件到{configFilePath}");
     Exit(true);
 }
@@ -131,7 +131,8 @@ try
 
     var dateNow = DateTime.Now;
     LogInfo($"现在是 {dateNow:yyyy-MM}, 获取节假日中...");
-    var holidays = (await (await http.GetAsync("https://api.comm.miui.com/holiday/holiday.jsp")).Content.ReadFromJsonAsync<CalendarModel>())?.Holiday.FirstOrDefault(h => h.Year == dateNow.Year);
+    var holidayRequest = await http.GetAsync("https://api.comm.miui.com/holiday/holiday.jsp");
+    var holidays = (await holidayRequest.Content.ReadFromJsonAsync(SourceGeneratedJsonContext.Default.CalendarModel))?.Holiday.FirstOrDefault(h => h.Year == dateNow.Year);
     if (holidays == null)
     {
         LogError("节假日信息获取失败");
@@ -162,11 +163,9 @@ try
     var walked = new bool[availableDays.Count, registrationPieces.Length];
     var walkedHours = 0;
 
-    Func<bool> dfs = null!;
-    dfs = () =>
+    bool Dfs()
     {
-        if (walkedHours >= requiredHour)
-            return true;
+        if (walkedHours >= requiredHour) return true;
         var remainHour = requiredHour - walkedHours;
 
         while (walked.Cast<bool>().Any(b => !b))
@@ -180,15 +179,15 @@ try
 
             walked[day, piece] = true;
             walkedHours += registrationPieces[piece].WorkHours;
-            if (walkedHours == requiredHour || dfs())
-                return true;
+            if (walkedHours == requiredHour || Dfs()) return true;
             walked[day, piece] = false;
             walkedHours -= registrationPieces[piece].WorkHours;
         }
 
         throw new InvalidOperationException("无解");
-    };
-    dfs();
+    }
+
+    Dfs();
 
     var items = new List<(DateOnly day, int pieceIdx)>();
     for (var day = 0; day < walked.GetLength(0); day++)
@@ -214,6 +213,18 @@ catch (Exception e)
 }
 
 #endregion
+
+[UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "<Pending>")]
+[UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+static async Task WriteConfigAsync(string path, Config config)
+{
+    await using var fs = File.Create(path);
+    await JsonSerializer.SerializeAsync(fs, config, options: new JsonSerializerOptions(JsonSerializerOptions.Default)
+    {
+        TypeInfoResolver = SourceGeneratedJsonContext.Default,
+        WriteIndented = true
+    });
+}
 
 void LogInfo(string message)
 {
@@ -272,3 +283,7 @@ internal class HolidayModel
     [JsonPropertyName("workday")] public int[] Workdays { get; set; } = [];
     [JsonPropertyName("freeday")] public int[] FreeDays { get; set; } = [];
 }
+
+[JsonSerializable(typeof(Config))]
+[JsonSerializable(typeof(CalendarModel))]
+partial class SourceGeneratedJsonContext : JsonSerializerContext {}
