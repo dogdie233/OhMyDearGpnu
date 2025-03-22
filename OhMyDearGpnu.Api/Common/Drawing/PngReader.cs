@@ -106,8 +106,7 @@ internal class PngReader
         if (stream.CanSeek)
             stream.Seek(count, SeekOrigin.Current);
         else
-            // ReSharper disable once MustUseReturnValue
-            stream.Read(new byte[count], 0, count);
+            stream.ReadExactly(new byte[count], 0, count);
     }
 
     private record struct IHDRChunk

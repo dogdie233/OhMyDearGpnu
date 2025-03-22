@@ -1,5 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using OhMyDearGpnu.Api.Common;
 using OhMyDearGpnu.Api.StuAff.Models;
@@ -16,7 +18,7 @@ public abstract class JsonApiRequestBase<T>(string token) : BaseRequest<T>
     public override async ValueTask<T> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         responseMessage.EnsureSuccessStatusCode();
-        var res = await responseMessage.Content.ReadFromJsonAsync<JsonResponseModel<T>>();
+        var res = await responseMessage.Content.ReadFromJsonAsync((JsonTypeInfo<JsonResponseModel<T>>)StuAffSourceGeneratedJsonContext.Default.GetTypeInfo(typeof(JsonResponseModel<T>))!);
         if (res == null)
             throw new UnexpectedResponseException($"Failed to deserialize the response data. Http Code: {responseMessage.StatusCode}");
         if (res.Data == null)

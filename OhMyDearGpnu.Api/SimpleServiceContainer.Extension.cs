@@ -10,7 +10,7 @@ public static class SimpleServiceContainerExtension
         Register<TImplementation, TImplementation>(container);
         return container;
     }
-
+    
     public static SimpleServiceContainer Register<TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, TImplementation> serviceFactory)
         where TImplementation : class
     {
@@ -18,10 +18,10 @@ public static class SimpleServiceContainerExtension
         return container;
     }
 
-    public static SimpleServiceContainer Register<TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, Task<TImplementation>> serviceFactory)
+    public static SimpleServiceContainer RegisterAsync<TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, Task<TImplementation>> serviceFactory)
         where TImplementation : class
     {
-        Register<TImplementation, TImplementation>(container, serviceFactory);
+        RegisterAsync<TImplementation, TImplementation>(container, serviceFactory);
         return container;
     }
 
@@ -29,24 +29,26 @@ public static class SimpleServiceContainerExtension
         where TService : class
         where TImplementation : class, TService, new()
     {
-        container.Register(typeof(TService), typeof(TImplementation), BuildFactoryMethod<TImplementation>());
+        container.Register(typeof(TService), typeof(TImplementation), BuildMethod);
         return container;
+        object BuildMethod(SimpleServiceContainer _) => new TImplementation();
     }
 
     public static SimpleServiceContainer Register<TService, TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, TImplementation> serviceFactory)
         where TService : class
-        where TImplementation : TService
-    {
-        container.Register(typeof(TService), typeof(TImplementation), c => serviceFactory(c));
-        return container;
-    }
-
-    public static SimpleServiceContainer Register<TService, TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, Task<TImplementation>> serviceFactory)
-        where TService : class
-        where TImplementation : TService
+        where TImplementation : class, TService
     {
         container.Register(typeof(TService), typeof(TImplementation), serviceFactory);
         return container;
+    }
+
+    public static SimpleServiceContainer RegisterAsync<TService, TImplementation>(this SimpleServiceContainer container, Func<SimpleServiceContainer, Task<TImplementation>> serviceFactory)
+        where TService : class
+        where TImplementation : class, TService
+    {
+        container.Register(typeof(TService), typeof(TImplementation), BuildMethod);
+        return container;
+        object BuildMethod(SimpleServiceContainer c) => serviceFactory(c).GetAwaiter().GetResult();
     }
 
     public static T Locate<T>(this SimpleServiceContainer container)
@@ -79,11 +81,5 @@ public static class SimpleServiceContainerExtension
     {
         container.AddExisted(typeof(TImplementation), implementation);
         return container;
-    }
-
-    private static Func<SimpleServiceContainer, object> BuildFactoryMethod<T>() where T : class, new()
-    {
-        Func<SimpleServiceContainer, object> buildMethod = _ => new T();
-        return buildMethod;
     }
 }

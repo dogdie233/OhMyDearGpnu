@@ -16,7 +16,7 @@ public partial class GetUserInfoRequest : BaseRequest<UserInfoModel>
     {
         responseMessage.EnsureSuccessStatusCode();
 
-        var res = await responseMessage.Content.ReadFromJsonAsync<GetUserInfoResponse>();
+        var res = await responseMessage.Content.ReadFromJsonAsync(StuAffSourceGeneratedJsonContext.Default.GetUserInfoResponse);
         if (res is not { Meta: not null, Data: not null })
             throw new UnexpectedResponseException("Unable to get user info, response json invalid");
 

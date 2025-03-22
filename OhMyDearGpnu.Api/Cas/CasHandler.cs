@@ -96,7 +96,7 @@ public class CasHandler
         {
             await gpnuClient.SendRequest(new GetServiceTicketRequest(tgt, defaultService));
         }
-        catch (UnexpectedResponseException e)
+        catch (UnexpectedResponseException)
         {
             return false;
         }

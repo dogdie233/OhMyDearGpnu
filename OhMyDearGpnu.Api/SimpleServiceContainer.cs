@@ -49,16 +49,6 @@ public class SimpleServiceContainer
     public object CreateService(Type implementationType, Func<SimpleServiceContainer, object> factory)
     {
         var implementation = factory.Invoke(this);
-        switch (implementation)
-        {
-            case null:
-                throw new NoNullAllowedException("The implementation instance can't be null");
-            case Task task:
-                task.GetAwaiter().GetResult();
-                implementation = implementation.GetType().GetProperty("Result")!.GetValue(implementation);
-                break;
-        }
-
         if (implementation == null)
             throw new NoNullAllowedException("The implementation instance can't be null");
 

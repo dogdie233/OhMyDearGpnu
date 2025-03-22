@@ -11,6 +11,6 @@ public class DeleteWorkloadItemRequest(string token, IEnumerable<string> registr
 
     public override HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer)
     {
-        return JsonContent.Create(registrationIds);
+        return JsonContent.Create(registrationIds, StuAffSourceGeneratedJsonContext.Default.GetTypeInfo(typeof(IEnumerable<string>))!);
     }
 }

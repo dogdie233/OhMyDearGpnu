@@ -16,7 +16,7 @@ public partial class GetCasCaptchaRequest : BaseRequest<CasCaptcha>
         HttpResponseMessage responseMessage)
     {
         responseMessage.EnsureSuccessStatusCode();
-        var res = await responseMessage.Content.ReadFromJsonAsync<GetCasCaptchaResponse>();
+        var res = await responseMessage.Content.ReadFromJsonAsync(CasSourceGeneratedJsonContext.Default.GetCasCaptchaResponse);
         if (res is not { Content.Length: > 22 })
             throw await UnexpectedResponseException.FromHttpContentAsync(responseMessage, "Result is not a base64 encoded string.");
 

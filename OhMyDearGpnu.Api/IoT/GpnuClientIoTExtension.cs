@@ -1,6 +1,4 @@
-﻿using OhMyDearGpnu.Api.IoT.Models;
-
-namespace OhMyDearGpnu.Api.IoT;
+﻿namespace OhMyDearGpnu.Api.IoT;
 
 public static class GpnuClientIoTExtension
 {

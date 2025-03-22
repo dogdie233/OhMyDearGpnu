@@ -47,7 +47,10 @@ public class RequestGenerator : IIncrementalGenerator
                     createHttpContentBody = "return null;";
                     break;
                 case PayloadTypeEnum.Json:
-                    createHttpContentBody = "return JsonContent.Create(this);";
+                    var nsSplit = data.ns.Split('.');
+                    var domain = nsSplit.Length > 2 ? nsSplit[2] : string.Empty;
+                    var propertyName = data.cls + data.generic.Replace("<", "").Replace(">", "").Replace(", ", "");
+                    createHttpContentBody = $"return JsonContent.Create(this, {domain}SourceGeneratedJsonContext.Default.{propertyName});";
                     break;
                 case PayloadTypeEnum.FormUrlEncoded:
                     createHttpContentBody = "KeyValuePair<string, string?>[] formItems = [";

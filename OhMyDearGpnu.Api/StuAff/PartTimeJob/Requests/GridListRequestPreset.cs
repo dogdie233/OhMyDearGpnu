@@ -1,8 +1,10 @@
-﻿using OhMyDearGpnu.Api.StuAff.PartTimeJob.Models;
+﻿using OhMyDearGpnu.Api.Common;
+using OhMyDearGpnu.Api.StuAff.PartTimeJob.Models;
 
 namespace OhMyDearGpnu.Api.StuAff.PartTimeJob.Requests;
 
-public class QueryMyJobForWorkloadRegistrationRequest : QueryGridListRequest<MyJobModel>
+[Request(PayloadTypeEnum.Json)]
+public partial class QueryMyJobForWorkloadRegistrationRequest : QueryGridListRequest<MyJobModel>
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_wdgw_table";
 
@@ -12,7 +14,8 @@ public class QueryMyJobForWorkloadRegistrationRequest : QueryGridListRequest<MyJ
     }
 }
 
-public class QueryWorkloadRegistrationsRequest : QueryGridListRequest<WorkloadItemModel>
+[Request(PayloadTypeEnum.Json)]
+public partial class QueryWorkloadRegistrationsRequest : QueryGridListRequest<WorkloadItemModel>
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_mx_table";
 
@@ -23,7 +26,8 @@ public class QueryWorkloadRegistrationsRequest : QueryGridListRequest<WorkloadIt
     }
 }
 
-public class QuerySalaryRequest : QueryGridListRequest<MonthlySalaryModel>
+[Request(PayloadTypeEnum.Json)]
+public partial class QuerySalaryRequest : QueryGridListRequest<MonthlySalaryModel>
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_xctj_table";
 

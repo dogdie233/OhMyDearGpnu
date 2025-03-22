@@ -38,9 +38,9 @@ public sealed class GpnuClient
         serviceContainer.AddExisted(cas);
 
         serviceContainer.Register<PageCacheManager>();
-        serviceContainer.Register<IoT.IoTContext>(static container => IoT.IoTContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
-        serviceContainer.Register<AcaAff.AcaAffContext>(static container => AcaAff.AcaAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
-        serviceContainer.Register<StuAff.StuAffContext>(static container => StuAff.StuAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<IoT.IoTContext>(static container => IoT.IoTContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<AcaAff.AcaAffContext>(static container => AcaAff.AcaAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<StuAff.StuAffContext>(static container => StuAff.StuAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
         serviceContainer.Register<ICasCaptchaResolver>(static _ => new SimpleCasCaptchaResolver());
     }
 

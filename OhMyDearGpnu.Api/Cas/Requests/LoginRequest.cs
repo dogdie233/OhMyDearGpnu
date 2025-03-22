@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using OhMyDearGpnu.Api.Cas.Responses;
 using OhMyDearGpnu.Api.Common;
@@ -51,7 +52,7 @@ public partial class LoginRequest : BaseRequest<LoginResponse>
     public override async ValueTask<LoginResponse> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         responseMessage.EnsureSuccessStatusCode();
-        var payload = await responseMessage.Content.ReadFromJsonAsync<LoginResponse>();
+        var payload = await responseMessage.Content.ReadFromJsonAsync(CasSourceGeneratedJsonContext.Default.LoginResponse);
         if (payload == null)
             throw new UnexpectedResponseException("Failed to deserialize response");
         return payload;

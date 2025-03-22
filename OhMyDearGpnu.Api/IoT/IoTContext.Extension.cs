@@ -1,5 +1,4 @@
-﻿using OhMyDearGpnu.Api.Common;
-using OhMyDearGpnu.Api.IoT.Models;
+﻿using OhMyDearGpnu.Api.IoT.Models;
 using OhMyDearGpnu.Api.IoT.Requests;
 
 namespace OhMyDearGpnu.Api.IoT;
