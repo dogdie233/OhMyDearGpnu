@@ -8,27 +8,9 @@ public abstract class BaseRequest
     public abstract Uri Url { get; }
     public abstract HttpMethod HttpMethod { get; }
 
-    public virtual async ValueTask FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
+    public virtual ValueTask FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
     {
-        var pageCacheManager = serviceContainer.Locate<PageCacheManager>();
-        (FieldInfo field, FromPageCacheAttribute attribute)[] fromCachePageFields = GetType().GetFields()
-            .Select(field => (field, field.GetCustomAttribute<FromPageCacheAttribute>()))
-            .Where(info => info.Item2 != null)
-            .ToArray()!;
-
-        foreach (var info in fromCachePageFields)
-        {
-            var identifier = info.attribute.pageIdentifier;
-            var cache = pageCacheManager.GetCache(identifier);
-            if (cache == null)
-                continue;
-
-            if (cache.IsExpire)
-                await cache.UpdateAsync();
-
-            var value = info.attribute.ParseValue(cache);
-            info.field.SetValue(this, value);
-        }
+        return ValueTask.CompletedTask;
     }
 
     public virtual AuthenticationHeaderValue? GetAuthenticationHeaderValue(SimpleServiceContainer serviceContainer)

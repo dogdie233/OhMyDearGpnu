@@ -18,7 +18,7 @@ public struct DiscreteNumberRange : IEnumerable<int>
         this.ranges = ranges;
     }
 
-    public static DiscreteNumberRange Parse(string str)
+    public static DiscreteNumberRange Parse(string? str)
         => Parse(str.AsSpan());
     
     public static DiscreteNumberRange Parse(ReadOnlySpan<char> str)
