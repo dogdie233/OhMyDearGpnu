@@ -15,4 +15,10 @@ namespace OhMyDearGpnu.Api.IoT;
 [JsonSerializable(typeof(ListMyRoomElectricRequest))]
 [JsonSerializable(typeof(IoTApiResponseModelBase<List<RoomElectricModel>>))]
 [JsonSerializable(typeof(ServiceTicketLoginRequest))]
-public partial class IoTSourceGeneratedJsonContext : JsonSerializerContext { }
+[JsonSerializable(typeof(ListMyRoomWaterRequest))]
+[JsonSerializable(typeof(IoTApiResponseModelBase<List<RoomWaterModel>>))]
+[JsonSerializable(typeof(GetWaterBalanceRequest))]
+[JsonSerializable(typeof(IoTApiResponseModelBase<WaterBalanceModel>))]
+public partial class IoTSourceGeneratedJsonContext : JsonSerializerContext
+{
+}
