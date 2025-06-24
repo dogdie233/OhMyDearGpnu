@@ -13,7 +13,7 @@ public class MonthlySalaryModel
     [JsonConverter(typeof(DateOnlyYearMonthConverter))]
     public DateOnly Date { get; set; }
 
-    [JsonPropertyName("ZGL")] public int WorkHours { get; set; }
+    [JsonPropertyName("ZGL")] public decimal WorkHours { get; set; }
     [JsonPropertyName("XCJE")] public decimal RealSalary { get; set; }
     [JsonPropertyName("ROW_ID")] public int RowId { get; set; }
 }
