@@ -112,7 +112,7 @@ public class CasHandler
             var info = data.Code switch
             {
                 "CODEFALSE" => (CasLoginFailException.LoginFailReasonType.CodeFalse, "验证码错误"),
-                "PASSERROR" => (CasLoginFailException.LoginFailReasonType.PassError, $"密码错误，已尝试 {data.Data[(data.Data.IndexOf(',') + 1) ..]} 次，总共可尝试 {..data.Data.IndexOf(',')} 次"),
+                "PASSERROR" => (CasLoginFailException.LoginFailReasonType.PassError, $"密码错误，已尝试 {data.Data[(data.Data.IndexOf(',') + 1) ..]} 次，总共可尝试 {data.Data[..data.Data.IndexOf(',')]} 次"),
                 "NOUSER" => (CasLoginFailException.LoginFailReasonType.NoUser, "用户不存在"),
                 _ => (CasLoginFailException.LoginFailReasonType.Unknown, $"未知的错误: Code {data.Code}, Data: {data.Data}")
             };
