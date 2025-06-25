@@ -16,9 +16,9 @@ public sealed class GpnuClient
     {
         cas = new CasHandler(this);
         cookieContainer = new CookieContainer();
-        client = new HttpClient(new RedirectingHandler()
+        client = new HttpClient(new RedirectingHandler
         {
-            InnerHandler = new HttpClientHandler()
+            InnerHandler = new HttpClientHandler
             {
                 AllowAutoRedirect = false,
                 CookieContainer = cookieContainer,
@@ -26,7 +26,8 @@ public sealed class GpnuClient
             },
             AllowAutoRedirect = true
         });
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.0.0");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.0.0");
 
         serviceContainer = new SimpleServiceContainer();
         RegisterServices();
@@ -38,10 +39,12 @@ public sealed class GpnuClient
         serviceContainer.AddExisted(cas);
 
         serviceContainer.Register<PageCacheManager>();
-        serviceContainer.RegisterAsync<IoT.IoTContext>(static container => IoT.IoTContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
-        serviceContainer.RegisterAsync<AcaAff.AcaAffContext>(static container => AcaAff.AcaAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
-        serviceContainer.RegisterAsync<StuAff.StuAffContext>(static container => StuAff.StuAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
-        serviceContainer.Register<ICasCaptchaResolver>(static _ => new SimpleCasCaptchaResolver());
+        serviceContainer.RegisterAsync<IoT.IoTContext>(container => IoT.IoTContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<AcaAff.AcaAffContext>(container => AcaAff.AcaAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<StuAff.StuAffContext>(container => StuAff.StuAffContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.RegisterAsync<TeachEval.TeachEvalContext>(container =>
+            TeachEval.TeachEvalContext.CreateByServiceTicket(container.Locate<GpnuClient>()));
+        serviceContainer.Register<ICasCaptchaResolver>(_ => new SimpleCasCaptchaResolver());
     }
 
     public async Task SendRequest(BaseRequest request)

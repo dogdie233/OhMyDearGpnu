@@ -4,6 +4,7 @@ using OhMyDearGpnu.Api.AcaAff;
 using OhMyDearGpnu.Api.AcaAff.Requests;
 using OhMyDearGpnu.Api.Cas;
 using OhMyDearGpnu.Api.IoT;
+using OhMyDearGpnu.Api.TeachEval;
 
 var client = new GpnuClient();
 
@@ -54,24 +55,6 @@ var roomCode = myRooms[0].RoomCode;
 var electricBalance = await iot.GetElectricBalance(roomCode);
 Console.WriteLine($"你的房间是：{roomCode}，电费余额为{electricBalance.MoneyBalance}");
 
-var acaAff = client.GetAcaAffContext();
-Console.WriteLine("正在获取个人信息");
-var personInfoResponse = await client.SendRequest(new PersonInfoRequest());
-Console.WriteLine($"你好，{personInfoResponse.Name}({personInfoResponse.StudentID})");
-
-Console.WriteLine("正在获取日历");
-var calendar = await acaAff.GetCalendar();
-Console.WriteLine($"本周为第{calendar.CurrentWeek}周");
-var curriculums = await acaAff.GetCurriculums(2023, "3");
-Console.WriteLine($"========本周的课表为========");
-foreach (var curriculum in curriculums)
-{
-    if (!curriculum.Week.IsInRange(calendar.CurrentWeek))
-        continue;
-    Console.Write($"周{curriculum.Day}    ");
-    Console.Write($"{curriculum.Name.PadRight(20, ' ')}");
-    Console.Write($"{curriculum.Classroom.PadRight(10, ' ')}");
-    Console.WriteLine();
-}
-
-Console.WriteLine("============================");
+var teachContext = client.GetTeachEvalContext();
+var unfinished = await teachContext.GetMyTaskItemByAnswerStatus();
+Console.WriteLine($"你有{unfinished.TotalCount}个未完成的教学评价任务");
