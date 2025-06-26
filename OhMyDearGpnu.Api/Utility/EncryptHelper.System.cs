@@ -7,11 +7,11 @@ namespace OhMyDearGpnu.Api.Utility;
 public static partial class EncryptHelper
 {
     private const string TeachEvalKeyText = "nfZYwnW2ppQc3CXr";
-    private static readonly byte[] _teachEvalKey;
+    private static readonly byte[] TeachEvalKey;
 
     static EncryptHelper()
     {
-        _teachEvalKey = Encoding.UTF8.GetBytes(TeachEvalKeyText);
+        TeachEvalKey = Encoding.UTF8.GetBytes(TeachEvalKeyText);
     }
 
     public static string CasPasswordEncrypt(string input, byte[] publicExponent, byte[] modulus)
@@ -35,7 +35,7 @@ public static partial class EncryptHelper
     public static string TeachEvalPayloadEncrypt(string input)
     {
         using var aes = Aes.Create();
-        aes.Key = _teachEvalKey;
+        aes.Key = TeachEvalKey;
         aes.Mode = CipherMode.ECB;
         aes.Padding = PaddingMode.PKCS7;
 
@@ -45,30 +45,15 @@ public static partial class EncryptHelper
         return Convert.ToBase64String(encryptedBytes);
     }
 
-    public static string TeachEvalPayloadDecrypt(string input)
+    public static string TeachEvalSaveEncrypt(string input, byte[] publicExponent, byte[] modulus)
     {
-        if (string.IsNullOrEmpty(input))
-            return string.Empty;
-
-        try
+        var rsa = RSA.Create(new RSAParameters
         {
-            using var aes = Aes.Create();
-            aes.Key = _teachEvalKey;
-            aes.Mode = CipherMode.ECB;
-            aes.Padding = PaddingMode.PKCS7;
-
-            using var memoryStream = new MemoryStream(Convert.FromBase64String(input));
-            using var cryptoStream = new CryptoStream(
-                memoryStream,
-                aes.CreateDecryptor(),
-                CryptoStreamMode.Read);
-            using var reader = new StreamReader(cryptoStream, Encoding.UTF8);
-
-            return reader.ReadToEnd();
-        }
-        catch
-        {
-            return string.Empty;
-        }
+            Modulus = modulus,
+            Exponent = publicExponent
+        });
+        var inputBytes = Encoding.UTF8.GetBytes(input);
+        var encryptedBytes = rsa.Encrypt(inputBytes, RSAEncryptionPadding.Pkcs1);
+        return Convert.ToHexString(encryptedBytes).ToLower();
     }
 }

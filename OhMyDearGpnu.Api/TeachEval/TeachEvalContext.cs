@@ -30,16 +30,18 @@ public class TeachEvalContext(GpnuClient gpnuClient, UserInfoModel userInfo, str
 
     public SystemParamsModel CreateSystemParams(ISystemParams mergeParams)
     {
-        return SharedSystemParams with
+        var p = SharedSystemParams with
         {
             ApiName = mergeParams.ApiName,
-            RequestOriginPageAddress = mergeParams.RequestOriginPageAddress,
+            RequestOriginPageAddress = null!,
             PageContext = mergeParams.PageContext,
-            ClientTime = DateTime.Now,
             Semester = mergeParams.Semester ?? UserInfo.CurrentSemester,
+            ClientTime = DateTime.Now,
             Token = Token,
             UserCode = UserInfo.Code,
             UniversityCode = UserInfo.UniversityCode
         };
+        p.RequestOriginPageAddress = mergeParams.BuildRequestOriginPageAddress(p);
+        return p;
     }
 }

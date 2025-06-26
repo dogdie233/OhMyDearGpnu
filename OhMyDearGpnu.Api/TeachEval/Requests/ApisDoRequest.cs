@@ -13,10 +13,10 @@ public abstract class ApisDoRequest<T> : BaseRequest<T>, ISystemParams
     [JsonIgnore] public override Uri Url => new(Hosts.teachEval, "service/apis.do?ApiName=" + ApiName);
     [JsonIgnore] public override HttpMethod HttpMethod => HttpMethod.Post;
 
-    [JsonIgnore] public abstract string ApiName { get; }
-    [JsonIgnore] public abstract string RequestOriginPageAddress { get; }
+    public abstract string ApiName { get; }
+    public abstract string BuildRequestOriginPageAddress(SystemParamsModel model);
 
-    public virtual object GetRequestParams()
+    protected virtual object? GetRequestParams()
     {
         return this;
     }
@@ -42,8 +42,11 @@ public abstract class ApisDoRequest<T> : BaseRequest<T>, ISystemParams
     }
 }
 
-public abstract class ApisDoRequestPaged<T> : ApisDoRequest<PagedResponseModel<T>>
+public abstract class ApisDoRequestPaged<T> : ApisDoRequest<PagedResponseModel<T>>, ISystemParams
 {
+    [JsonIgnore] public PagedReqModel Paged { get; set; } = PagedReqModel.Default;
+    [JsonIgnore] PagedReqModel ISystemParams.PageContext => Paged;
+
     public override async ValueTask<PagedResponseModel<T>> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
         var responseDocument = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());

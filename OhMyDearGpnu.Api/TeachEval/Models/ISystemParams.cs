@@ -3,7 +3,7 @@
 public interface ISystemParams
 {
     string ApiName { get; }
-    string RequestOriginPageAddress { get; }
-    public PagedModel? PageContext => null;
+    string BuildRequestOriginPageAddress(SystemParamsModel model);
+    public PagedReqModel? PageContext => null;
     public string? Semester => null;
 }

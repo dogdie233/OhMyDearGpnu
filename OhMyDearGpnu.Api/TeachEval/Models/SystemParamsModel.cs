@@ -20,5 +20,5 @@ public record SystemParamsModel
     public string? UserCode { get; set; }
     public string? UniversityCode { get; set; }
 
-    public PagedModel? PageContext { get; set; }
+    public PagedReqModel? PageContext { get; set; }
 }

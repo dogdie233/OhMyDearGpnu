@@ -7,12 +7,16 @@ using OhMyDearGpnu.Api.Utility;
 
 namespace OhMyDearGpnu.Api.TeachEval.Requests;
 
-public class GetUserByContextTokenRequest(string token, string clientId) : ApisDoRequest<UserInfoModel>
+public sealed class GetUserByContextTokenRequest(string token, string clientId) : ApisDoRequest<UserInfoModel>
 {
     public override string ApiName => "Mycos.JP.Login.GetUserContextByToken";
-    public override string RequestOriginPageAddress => $"{Hosts.teachEval}index.html?v=3.25.0#/user/init?token={HttpUtility.UrlEncode(token)}";
 
-    public override object GetRequestParams()
+    public override string BuildRequestOriginPageAddress(SystemParamsModel model)
+    {
+        return $"{Hosts.teachEval}index.html?v=3.25.0#/user/init?token={HttpUtility.UrlEncode(token)}";
+    }
+
+    protected override object? GetRequestParams()
     {
         return token;
     }
@@ -24,8 +28,9 @@ public class GetUserByContextTokenRequest(string token, string clientId) : ApisD
             ApiName = ApiName,
             ClientId = clientId,
             ClientTime = DateTime.Now,
-            RequestOriginPageAddress = RequestOriginPageAddress
+            RequestOriginPageAddress = null!
         };
+        systemParams.RequestOriginPageAddress = BuildRequestOriginPageAddress(systemParams);
 
         var payload = new ApisDoRequestModel(systemParams, token);
         var payloadJson = JsonSerializer.Serialize(payload, TeachEvalSourceGeneratedJsonContext.Default.ApisDoRequestModel);
