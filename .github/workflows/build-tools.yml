@@ -71,16 +71,15 @@ jobs:
       - name: Build and Publish Projects for ${{ matrix.rid }}
         run: |
           platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/${{ matrix.rid }}"
-          mkdir -p $platformOutputDir
-          readarray -t projects <<< "${{ env.PROJECT_PATHS }}"
-          
-          for projectPath in "${projects[@]}"; do
-            # 检查 projectPath 是否为空，跳过空行
+          mkdir -p "$platformOutputDir"
+
+          echo "${{ env.PROJECT_PATHS }}" | while IFS= read -r projectPath; do
+            # 过滤掉空行
             if [ -z "$projectPath" ]; then
               continue
             fi
 
-            projectName=$(basename $(dirname "$projectPath"))
+            projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
 
             echo "Publishing $projectName for ${{ matrix.rid }} to $outputPath..."
@@ -110,21 +109,19 @@ jobs:
       
       - name: Build and Publish Projects for linux-x64
         run: |
-          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/${{ matrix.rid }}"
-          mkdir -p $platformOutputDir
-          readarray -t projects <<< "${{ env.PROJECT_PATHS }}"
-          
-          for projectPath in "${projects[@]}"; do
-            # 检查 projectPath 是否为空，跳过空行
+          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/linux-x64"
+          mkdir -p "$platformOutputDir"
+
+          echo "${{ env.PROJECT_PATHS }}" | while IFS= read -r projectPath; do
             if [ -z "$projectPath" ]; then
               continue
             fi
 
-            projectName=$(basename $(dirname "$projectPath"))
+            projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
 
-            echo "Publishing $projectName for ${{ matrix.rid }} to $outputPath..."
-            dotnet publish "$projectPath" -r ${{ matrix.rid }} -c Release --output "$outputPath"
+            echo "Publishing $projectName for linux-arm64 to $outputPath..."
+            dotnet publish "$projectPath" -r linux-arm64 -c Release --output "$outputPath"
           done
       
       - name: Clean PDB files (linux-x64)
@@ -150,21 +147,19 @@ jobs:
       
       - name: Build and Publish Projects for linux-arm64
         run: |
-          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/${{ matrix.rid }}"
-          mkdir -p $platformOutputDir
-          readarray -t projects <<< "${{ env.PROJECT_PATHS }}"
-          
-          for projectPath in "${projects[@]}"; do
-            # 检查 projectPath 是否为空，跳过空行
+          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/linux-arm64"
+          mkdir -p "$platformOutputDir"
+
+          echo "${{ env.PROJECT_PATHS }}" | while IFS= read -r projectPath; do
             if [ -z "$projectPath" ]; then
               continue
             fi
 
-            projectName=$(basename $(dirname "$projectPath"))
+            projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
 
-            echo "Publishing $projectName for ${{ matrix.rid }} to $outputPath..."
-            dotnet publish "$projectPath" -r ${{ matrix.rid }} -c Release --output "$outputPath"
+            echo "Publishing $projectName for linux-arm64 to $outputPath..."
+            dotnet publish "$projectPath" -r linux-arm64 -c Release --output "$outputPath"
           done
       
       - name: Clean PDB files (linux-arm64)
