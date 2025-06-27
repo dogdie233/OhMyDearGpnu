@@ -33,10 +33,10 @@ jobs:
           mkdir -Path $platformOutputDir -Force
           $projectPaths = "${{ env.PROJECT_PATHS }}" -split "`n"
           foreach ($projectPath in $projectPaths) {
-            $projectName = (Get-Item $projectPath).Directory.Name
+            $projectName = (Get-Item $projectPath.Trim()).Directory.Name
             $outputPath = "$platformOutputDir/$projectName"
             Write-Host "Publishing $projectName for win-x64 to $outputPath..."
-            dotnet publish $projectPath -r win-x64 -c Release /p:PublishAot=true --output $outputPath
+            dotnet publish $projectPath -r win-x64 -c Release --output $outputPath
           }
       
       - name: Clean PDB files (win-x64)
@@ -71,7 +71,7 @@ jobs:
             projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
             echo "Publishing $projectName for osx-x64 to $outputPath..."
-            dotnet publish "$projectPath" -r osx-x64 -c Release /p:PublishAot=true --output "$outputPath"
+            dotnet publish "$projectPath" -r osx-x64 -c Release --output "$outputPath"
           done <<< "${{ env.PROJECT_PATHS }}"
       
       - name: Clean PDB files (${{ matrix.rid }})
@@ -103,7 +103,7 @@ jobs:
             projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
             echo "Publishing $projectName for linux-x64 to $outputPath..."
-            dotnet publish "$projectPath" -r linux-x64 -c Release /p:PublishAot=true --output "$outputPath"
+            dotnet publish "$projectPath" -r linux-x64 -c Release --output "$outputPath"
           done <<< "${{ env.PROJECT_PATHS }}"
       
       - name: Clean PDB files (linux-x64)
@@ -135,7 +135,7 @@ jobs:
             projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
             echo "Publishing $projectName for linux-x64 to $outputPath..."
-            dotnet publish "$projectPath" -r linux-x64 -c Release /p:PublishAot=true --output "$outputPath"
+            dotnet publish "$projectPath" -r linux-x64 -c Release --output "$outputPath"
           done <<< "${{ env.PROJECT_PATHS }}"
       
       - name: Clean PDB files (linux-arm64)
