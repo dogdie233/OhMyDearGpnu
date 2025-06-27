@@ -1,0 +1,156 @@
+name: Multi-platform build tools
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  DOTNET_VERSION: '9.x'
+  FRAMEWORK_VERISON: 'net9.0'
+  # 定义所有需要构建的项目路径
+  PROJECT_PATHS: |
+    ./AutoTeachEval/AutoTeachEval.csproj
+    ./PartTimeJobReporter/PartTimeJobReporter.csproj
+  
+  # 定义一个公共的发布输出根目录，每个项目会在此目录下创建以项目名为子文件夹的发布目录
+  # 例如：./build-output/win-x64/AutoTeachEval/ 和 ./build-output/win-x64/PartTimeJobReporter/
+  COMMON_PUBLISH_ROOT: './build-output'
+
+jobs:
+  build-win-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build and Publish Projects for win-x64
+        run: |
+          $platformOutputDir = "${{ env.COMMON_PUBLISH_ROOT }}/win-x64"
+          mkdir -Path $platformOutputDir -Force
+          $projectPaths = "${{ env.PROJECT_PATHS }}" -split "`n"
+          foreach ($projectPath in $projectPaths) {
+            $projectPath = $projectPath.Trim()
+            if ($projectPath.Length -eq 0) {
+              continue
+            }
+            $projectName = (Get-Item $projectPath.Trim()).Directory.Name
+            $outputPath = "$platformOutputDir/$projectName"
+            Write-Host "Publishing $projectName for win-x64 to $outputPath..."
+            dotnet publish $projectPath -r win-x64 -c Release -f ${{ env.FRAMEWORK_VERISON }} --output $outputPath
+          }
+      
+      - name: Clean PDB files (win-x64)
+        run: Get-ChildItem -Path "${{ env.COMMON_PUBLISH_ROOT }}/win-x64" -Recurse -Include "*.pdb" | Remove-Item -Force
+
+      - name: Zip Artifact (win-x64)
+        run: |
+          Compress-Archive -Path "${{ env.COMMON_PUBLISH_ROOT }}/win-x64/*" -DestinationPath ToolStore-win-x64.zip
+      - name: Upload Artifact (win-x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToolStore-win-x64
+          path: ToolStore-win-x64.zip
+
+  build-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        rid: [osx-x64, osx-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Build and Publish Projects for ${{ matrix.rid }}
+        run: |
+          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/osx-x64"
+          mkdir -p "$platformOutputDir"
+          while read -r projectPath; do
+            projectName=$(basename "$(dirname "$projectPath")")
+            outputPath="$platformOutputDir/$projectName"
+            echo "Publishing $projectName for osx-x64 to $outputPath..."
+            dotnet publish "$projectPath" -r osx-x64 -c Release -f ${{ env.FRAMEWORK_VERISON }} --output "$outputPath"
+          done <<< "${{ env.PROJECT_PATHS }}"
+      
+      - name: Clean PDB files (${{ matrix.rid }})
+        run: find "${{ env.COMMON_PUBLISH_ROOT }}/${{ matrix.rid }}" -name "*.pdb" -delete
+
+      - name: Zip Artifact
+        run: |
+          zip -r ToolStore-${{ matrix.rid }}.zip "${{ env.COMMON_PUBLISH_ROOT }}/${{ matrix.rid }}"
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToolStore-${{ matrix.rid }}
+          path: ToolStore-${{ matrix.rid }}.zip
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Build and Publish Projects for linux-x64
+        run: |
+          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/linux-x64"
+          mkdir -p $platformOutputDir
+          while read -r projectPath; do
+            projectName=$(basename "$(dirname "$projectPath")")
+            outputPath="$platformOutputDir/$projectName"
+            echo "Publishing $projectName for linux-x64 to $outputPath..."
+            dotnet publish "$projectPath" -r linux-x64 -c Release -f ${{ env.FRAMEWORK_VERISON }} --output "$outputPath"
+          done <<< "${{ env.PROJECT_PATHS }}"
+      
+      - name: Clean PDB files (linux-x64)
+        run: find "${{ env.COMMON_PUBLISH_ROOT }}/linux-x64" -name "*.pdb" -delete
+
+      - name: Zip Artifact
+        run: |
+          zip -r ToolStore-linux-x64.zip "${{ env.COMMON_PUBLISH_ROOT }}/linux-x64"
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToolStore-linux-x64
+          path: ToolStore-linux-x64.zip
+  
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Build and Publish Projects for linux-arm64
+        run: |
+          platformOutputDir="${{ env.COMMON_PUBLISH_ROOT }}/linux-x64"
+          mkdir -p $platformOutputDir
+          while read -r projectPath; do
+            projectName=$(basename "$(dirname "$projectPath")")
+            outputPath="$platformOutputDir/$projectName"
+            echo "Publishing $projectName for linux-x64 to $outputPath..."
+            dotnet publish "$projectPath" -r linux-x64 -c Release -f ${{ env.FRAMEWORK_VERISON }} --output "$outputPath"
+          done <<< "${{ env.PROJECT_PATHS }}"
+      
+      - name: Clean PDB files (linux-arm64)
+        run: find "${{ env.COMMON_PUBLISH_ROOT }}/linux-arm64" -name "*.pdb" -delete
+
+      - name: Zip Artifact
+        run: |
+          zip -r ToolStore-linux-arm64.zip "${{ env.COMMON_PUBLISH_ROOT }}/linux-arm64"
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ToolStore-linux-arm64
+          path: ToolStore-linux-arm64.zip
