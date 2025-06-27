@@ -28,6 +28,16 @@ public partial record QuestionnairePageUrl
             $"#/my-task/answer/zkd/{Status}/{TaskStatus}/{QuestionnaireTypeCode}/{QuestionnaireType}/{QuestionnaireId}/{CurrentCourseCode}/{TaskId}{query}";
     }
 
+    public QuestionnairePageUrl With(TaskItemDetailModel taskItemDetail)
+    {
+        return this with
+        {
+            QuestionnaireId = taskItemDetail.QuestionnaireId,
+            CurrentCourseCode = taskItemDetail.CourseCode,
+            TaskStatus = taskItemDetail.Status.ToString()
+        };
+    }
+
     public static QuestionnairePageUrl CreateFromFullUrl(Uri uri)
     {
         var uriStr = uri.ToString();

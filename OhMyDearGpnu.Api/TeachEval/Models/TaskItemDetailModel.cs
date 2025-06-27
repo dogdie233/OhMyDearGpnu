@@ -18,17 +18,13 @@ public class TaskItemDetailModel
 
     [JsonPropertyName("TeacherNames")] public string TeacherNames { get; set; } = string.Empty;
 
-    [JsonPropertyName("TaskStatus")]
-    [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool TaskStatus { get; set; }
+    [JsonPropertyName("TaskStatus")] public int TaskStatus { get; set; }
 
     [JsonPropertyName("HasScoreLevel")]
     [JsonConverter(typeof(BooleanNumberConverter))]
     public bool HasScoreLevel { get; set; }
 
-    [JsonPropertyName("EvaType")]
-    [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool EvaType { get; set; }
+    [JsonPropertyName("EvaType")] public int EvaType { get; set; }
 
     [JsonPropertyName("PersonCode")] public string PersonCode { get; set; } = string.Empty;
 

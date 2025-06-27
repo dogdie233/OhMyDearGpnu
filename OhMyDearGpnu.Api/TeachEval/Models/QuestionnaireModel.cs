@@ -52,9 +52,7 @@ public class QuestionnaireModel
 
     [JsonPropertyName("ClientType")] public int ClientType { get; set; }
 
-    [JsonPropertyName("TimeType")]
-    [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool TimeType { get; set; }
+    [JsonPropertyName("TimeType")] public int TimeType { get; set; }
 
     [JsonPropertyName("Version")] public int Version { get; set; }
 
@@ -63,9 +61,7 @@ public class QuestionnaireModel
 
     [JsonPropertyName("FinalAssistantId")] public int FinalAssistantId { get; set; }
 
-    [JsonPropertyName("IsSchool")]
-    [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool IsSchool { get; set; }
+    [JsonPropertyName("IsSchool")] public bool IsSchool { get; set; }
 
     [JsonPropertyName("IsTeacher")]
     [JsonConverter(typeof(BooleanNumberConverter))]
@@ -120,9 +116,7 @@ public class QuestionnaireItem
 
     [JsonPropertyName("Version")] public int Version { get; set; }
 
-    [JsonPropertyName("IsSetAnswer")]
-    [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool IsSetAnswer { get; set; }
+    [JsonPropertyName("IsSetAnswer")] public bool IsSetAnswer { get; set; }
 
     [JsonPropertyName("SubjectCategory")] public int SubjectCategory { get; set; }
 

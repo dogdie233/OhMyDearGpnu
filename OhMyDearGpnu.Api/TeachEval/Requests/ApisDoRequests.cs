@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using OhMyDearGpnu.Api.Serializer.Json;
@@ -16,15 +17,15 @@ public class GetMyTaskItemByAnswerStatusRequest : ApisDoRequestPaged<TaskItemMod
         return $"{Hosts.teachEval}index.html?v=3.25.0#/my-task/main/{Status}";
     }
 
-    public string Source { get; set; } = "pc";
-    public string Status { get; set; } = "UnFinished";
-    public int? EvaType { get; set; } = null;
-    public string? EvaCode { get; set; } = null;
+    public string Source { get; init; } = "pc";
+    public string Status { get; init; } = "UnFinished";
+    public int? EvaType { get; init; } = null;
+    public string? EvaCode { get; init; } = null;
 
     [JsonConverter(typeof(BooleanNumberConverter))]
-    public bool IsIncludeHistorySemester { get; set; } = true;
+    public bool IsIncludeHistorySemester { get; init; } = true;
 
-    [JsonIgnore] public string? Semester { get; set; }
+    [JsonIgnore] public string? Semester { get; init; }
     [JsonIgnore] string? ISystemParams.Semester => Semester;
 }
 
@@ -128,5 +129,12 @@ public class SaveQuestionnaireAnswerRequest(QuestionnairePageUrl page) : ApisDoR
         var publicExponent = Convert.FromHexString(key.PublicKey);
         var publicModulus = Convert.FromHexString(key.PublicValue);
         AuthKey = EncryptHelper.TeachEvalSaveEncrypt($"{DetailId}&{PersonCode}", publicExponent, publicModulus);
+    }
+
+    public override async ValueTask<bool> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
+    {
+        var responseDocument = await JsonDocument.ParseAsync(await responseMessage.Content.ReadAsStreamAsync());
+        var root = responseDocument.RootElement;
+        return root.GetProperty("Value")!.GetBoolean();
     }
 }
