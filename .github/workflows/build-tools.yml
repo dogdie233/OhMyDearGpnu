@@ -35,7 +35,7 @@ jobs:
           $projectPaths = "${{ env.PROJECT_PATHS }}" -split "`n"
           foreach ($projectPath in $projectPaths) {
             $projectPath = $projectPath.Trim()
-            if ($projectPath -eq 0) {
+            if ($projectPath.Length -eq 0) {
               continue
             }
             $projectName = (Get-Item $projectPath).Directory.Name
