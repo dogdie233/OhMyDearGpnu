@@ -13,7 +13,6 @@ env:
   PROJECT_PATHS: |
     ./AutoTeachEval/AutoTeachEval.csproj
     ./PartTimeJobReporter/PartTimeJobReporter.csproj
-  
   # 定义一个公共的发布输出根目录，每个项目会在此目录下创建以项目名为子文件夹的发布目录
   # 例如：./build-output/win-x64/AutoTeachEval/ 和 ./build-output/win-x64/PartTimeJobReporter/
   COMMON_PUBLISH_ROOT: './build-output'
@@ -34,11 +33,7 @@ jobs:
           mkdir -Path $platformOutputDir -Force
           $projectPaths = "${{ env.PROJECT_PATHS }}" -split "`n"
           foreach ($projectPath in $projectPaths) {
-            $projectPath = $projectPath.Trim()
-            if ($projectPath.Length -eq 0) {
-              continue
-            }
-            $projectName = (Get-Item $projectPath.Trim()).Directory.Name
+            $projectName = (Get-Item $projectPath).Directory.Name
             $outputPath = "$platformOutputDir/$projectName"
             Write-Host "Publishing $projectName for win-x64 to $outputPath..."
             dotnet publish $projectPath -r win-x64 -c Release -f ${{ env.FRAMEWORK_VERISON }} --output $outputPath
