@@ -120,8 +120,8 @@ jobs:
             projectName=$(basename "$(dirname "$projectPath")")
             outputPath="$platformOutputDir/$projectName"
 
-            echo "Publishing $projectName for linux-arm64 to $outputPath..."
-            dotnet publish "$projectPath" -r linux-arm64 -c Release --output "$outputPath"
+            echo "Publishing $projectName for linux-x64 to $outputPath..."
+            dotnet publish "$projectPath" -r linux-x64 -c Release --output "$outputPath"
           done
       
       - name: Clean PDB files (linux-x64)
