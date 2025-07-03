@@ -14,12 +14,13 @@ public class LearnTeset
     [Timeout(300000)]
     public async Task RespsetTest()
     {
-        GpnuClient? cline = new GpnuClient();
+        var cline = new GpnuClient();
         var casHandler = cline.cas;
 
         try
         {
-            var casLoginRes = await casHandler.LoginByWechat();
+            var context = await casHandler.CreateWechatLoginContext();
+            var casLoginRes = await casHandler.LoginByWechat(context);
         }
         catch (CasLoginFailException e)
         {

@@ -75,7 +75,7 @@ if (config == null)
                     var stuAffContext = client.GetStuAffContext();
 
                     ctx.Status("正在获取你的勤工俭学岗位列表...");
-                    jobs = (await stuAffContext.GpnuClient.SendRequest(new QueryMyJobForWorkloadRegistrationRequest(stuAffContext.Token, stuAffContext.UserInfo.UserId)
+                    jobs = (await stuAffContext.GpnuClient.SendRequest(new QueryMyJobForWorkloadRegistrationRequest(stuAffContext.UserInfo.UserId)
                     {
                         Pagination = new PaginationModel(1, 114514)
                     })).List;
@@ -140,7 +140,7 @@ try
     }
 
     LogInfo("正在获取已报时长");
-    var months = (await client.SendRequest(new QuerySalaryRequest(stuAff.Token, config.JobId.ToString(), stuAff.UserInfo.UserId)
+    var months = (await client.SendRequest(new QuerySalaryRequest(config.JobId.ToString(), stuAff.UserInfo.UserId)
     {
         Pagination = new PaginationModel(1, 114514)
     })).List;

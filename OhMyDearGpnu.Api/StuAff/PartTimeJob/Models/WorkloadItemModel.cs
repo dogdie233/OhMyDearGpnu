@@ -8,7 +8,9 @@ public class WorkloadItemModel
 {
     [JsonPropertyName("GWXXID")] public Guid JobId { get; set; }
 
-    [JsonPropertyName("GZRQ")] public DateOnly WorkDate { get; set; }
+    [JsonPropertyName("GZRQ")]
+    [JsonConverter(typeof(DateTimeConverter))]
+    public DateTime WorkDate { get; set; }
 
     [JsonPropertyName("KSSJ")]
     [JsonConverter(typeof(TimeOnlyHourMinuteConverter))]
@@ -18,7 +20,7 @@ public class WorkloadItemModel
     [JsonConverter(typeof(TimeOnlyHourMinuteConverter))]
     public TimeOnly EndTime { get; set; }
 
-    [JsonPropertyName("GZSC")] public int WorkHours { get; set; }
+    [JsonPropertyName("GZSC")] public decimal WorkHours { get; set; }
 
     [JsonPropertyName("GZLID")] public Guid RegistrationId { get; set; }
 

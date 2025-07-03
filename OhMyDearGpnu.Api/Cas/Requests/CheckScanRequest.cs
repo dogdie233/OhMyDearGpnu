@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+
 using OhMyDearGpnu.Api.Cas.Responses;
 using OhMyDearGpnu.Api.Common;
 
@@ -16,7 +13,7 @@ public partial class CheckScanRequest : BaseRequest<CheckScanResponse>
 
     [JsonIgnore] public override HttpMethod HttpMethod => HttpMethod.Post;
 
-    [FormItem("state")] public string? state { get; set; }
+    [FormItem("state")] public string? State { get; set; }
 
     public override async ValueTask<CheckScanResponse> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {

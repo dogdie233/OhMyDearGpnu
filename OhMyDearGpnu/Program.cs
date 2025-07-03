@@ -1,7 +1,5 @@
 ﻿using OhMyDearGpnu;
 using OhMyDearGpnu.Api;
-using OhMyDearGpnu.Api.AcaAff;
-using OhMyDearGpnu.Api.AcaAff.Requests;
 using OhMyDearGpnu.Api.Cas;
 using OhMyDearGpnu.Api.IoT;
 using OhMyDearGpnu.Api.TeachEval;
@@ -9,9 +7,6 @@ using OhMyDearGpnu.Api.TeachEval;
 var client = new GpnuClient();
 
 var casHandler = client.cas;
-string? username = null, password = null;
-
-
 Console.WriteLine("请选择登录方式：");
 Console.WriteLine("1. TGT登录");
 Console.WriteLine("2. 账号密码登录");
@@ -47,29 +42,25 @@ Console.WriteLine($"你的房间是：{roomCode}，电费余额为{electricBalan
 var teachContext = client.GetTeachEvalContext();
 var unfinished = await teachContext.GetMyTaskItemByAnswerStatus();
 Console.WriteLine($"你有{unfinished.TotalCount}个未完成的教学评价任务");
+return;
 
 
-
-async Task LoginByTgt(CasHandler casHandler)
+static async Task LoginByTgt(CasHandler casHandler)
 {
     Console.WriteLine("正在使用TGT登录");
     Console.Write("请输入TGT：");
     await casHandler.LoginByTgt(Console.ReadLine()!);
 }
 
-async Task LoginByPassword(CasHandler casHandler)
+static async Task LoginByPassword(CasHandler casHandler)
 {
     Console.Write("请输入学号: ");
-    username = Console.ReadLine()!;
+    var username = Console.ReadLine()!;
     Console.Write("请输入密码: ");
-    password = Helper.ReadPassword();
+    var password = Helper.ReadPassword();
 
     var casCaptcha = await casHandler.GetPasswordLoginCaptcha();
-    File.Delete("casCaptcha.png");
-    using (var fs = File.Create("casCaptcha.png"))
-    {
-        await fs.WriteAsync(casCaptcha.image);
-    }
+    await File.WriteAllBytesAsync("casCaptcha.png", casCaptcha.image);
 
     Console.WriteLine("已将验证码保存至casCaptcha.png");
     Console.Write("请输入验证码结果（留空则自动填充）: ");
@@ -78,7 +69,7 @@ async Task LoginByPassword(CasHandler casHandler)
         casCaptcha.value = null;
     try
     {
-        var casLoginRes = await casHandler.LoginByPassword(username, password, casCaptcha, true);
+        await casHandler.LoginByPassword(username, password, casCaptcha);
     }
     catch (CasLoginFailException e)
     {
@@ -87,11 +78,13 @@ async Task LoginByPassword(CasHandler casHandler)
     }
 }
 
-async Task LoginByWechat(CasHandler casHandler)
+static async Task LoginByWechat(CasHandler casHandler)
 {
     try
     {
-        var casLoginRes = await casHandler.LoginByWechat();
+        var context = await casHandler.CreateWechatLoginContext();
+        await File.WriteAllBytesAsync("WechatLoginQrCode.png", context.QrCodeImageData);
+        await casHandler.LoginByWechat(context);
     }
     catch (CasLoginFailException e)
     {

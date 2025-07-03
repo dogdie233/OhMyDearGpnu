@@ -7,7 +7,7 @@ using OhMyDearGpnu.Api.StuAff.Requests;
 namespace OhMyDearGpnu.Api.StuAff.PartTimeJob.Requests;
 
 [Request(PayloadTypeEnum.Json)]
-public partial class PostWorkloadItemRequest(string token) : JsonApiRequestBase<int?>(token)
+public partial class PostWorkloadItemRequest : JsonApiRequestBase<int?>
 {
     public override Uri Url => new(Hosts.stuAff, "qgzx/api/sm-work-study/jobRegister/insertOrUpdate");
     public override HttpMethod HttpMethod => HttpMethod.Post;
@@ -29,7 +29,7 @@ public partial class PostWorkloadItemRequest(string token) : JsonApiRequestBase<
 
     public static PostWorkloadItemRequest CreateInsertRequest(string token, string studentId, Guid jobId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int workHours)
     {
-        return new PostWorkloadItemRequest(token)
+        return new PostWorkloadItemRequest
         {
             StudentId = studentId,
             JobId = jobId,
@@ -42,7 +42,7 @@ public partial class PostWorkloadItemRequest(string token) : JsonApiRequestBase<
 
     public static PostWorkloadItemRequest CreateUpdateRequest(string token, Guid registrationId, string studentId, Guid jobId, DateOnly workDate, TimeOnly startTime, TimeOnly endTime, int workHours)
     {
-        return new PostWorkloadItemRequest(token)
+        return new PostWorkloadItemRequest
         {
             RegistrationId = registrationId,
             StudentId = studentId,

@@ -8,7 +8,7 @@ using OhMyDearGpnu.Api.StuAff.Requests;
 namespace OhMyDearGpnu.Api.StuAff.PartTimeJob.Requests;
 
 [Request(PayloadTypeEnum.Json)]
-public partial class QueryMyJobRequest(string token, PaginationModel pagination) : JsonApiRequestBase<Paged<MyJobModel>>(token)
+public partial class QueryMyJobRequest(PaginationModel pagination) : JsonApiRequestBase<Paged<MyJobModel>>
 {
     [JsonIgnore] public override Uri Url => new(Hosts.stuAff, "qgzx/api/sm-work-study/application/queryMyRzgw");
     [JsonIgnore] public override HttpMethod HttpMethod => HttpMethod.Post;

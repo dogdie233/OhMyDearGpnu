@@ -4,14 +4,16 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 using OhMyDearGpnu.Api.Common;
+using OhMyDearGpnu.Api.IoT;
 using OhMyDearGpnu.Api.StuAff.Models;
 
 namespace OhMyDearGpnu.Api.StuAff.Requests;
 
-public abstract class JsonApiRequestBase<T>(string token) : BaseRequest<T>
+public abstract class JsonApiRequestBase<T> : BaseRequest<T>
 {
     public override AuthenticationHeaderValue? GetAuthenticationHeaderValue(SimpleServiceContainer serviceContainer)
     {
+        var token = serviceContainer.Locate<StuAffContext>().Token;
         return new AuthenticationHeaderValue(token);
     }
 

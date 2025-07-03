@@ -8,7 +8,7 @@ public partial class QueryMyJobForWorkloadRegistrationRequest : QueryGridListReq
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_wdgw_table";
 
-    public QueryMyJobForWorkloadRegistrationRequest(string token, string studentId) : base(token, presetSign)
+    public QueryMyJobForWorkloadRegistrationRequest(string studentId) : base(presetSign)
     {
         SqlParams.Add("loginUserId", studentId);
     }
@@ -19,7 +19,7 @@ public partial class QueryWorkloadRegistrationsRequest : QueryGridListRequest<Wo
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_mx_table";
 
-    public QueryWorkloadRegistrationsRequest(string token, string jobId, string studentId) : base(token, presetSign)
+    public QueryWorkloadRegistrationsRequest(string jobId, string studentId) : base(presetSign)
     {
         SqlParams.Add("gwxxid", jobId);
         SqlParams.Add("xsid", studentId);
@@ -31,7 +31,7 @@ public partial class QuerySalaryRequest : QueryGridListRequest<MonthlySalaryMode
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_xctj_table";
 
-    public QuerySalaryRequest(string token, string jobId, string studentId) : base(token, presetSign)
+    public QuerySalaryRequest(string jobId, string studentId) : base(presetSign)
     {
         SqlParams.Add("gwxxid", jobId);
         SqlParams.Add("xsid", studentId);

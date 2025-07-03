@@ -8,7 +8,7 @@ namespace OhMyDearGpnu.Api.Cas;
 
 public class CasHandler
 {
-    private readonly GpnuClient gpnuClient;
+    internal readonly GpnuClient gpnuClient;
     public readonly string defaultService = "https://portal.gpnu.edu.cn/shiro-cas";
     public readonly string webAuthLoginService = Hosts.webAuth + "wengine-auth/login?cas_login=true";
 
@@ -20,41 +20,34 @@ public class CasHandler
         this.gpnuClient = gpnuClient;
     }
 
-    // TODO: unimplemented
-    // public void LoginByWorkWechat()
-    // {
-    //    
-    // }
-
-    public async Task<(string ticket, string tgt)> LoginByWechat(bool updateTgc = true, string? service = null)
+    public async Task<(string ticket, string tgt)> LoginByWechat(WechatLoginContext context, bool updateTgc = true, string? service = null, IProgress<LoginResponse.MetaModel>? progress = null, CancellationToken cancellationToken = default)
     {
-        var qRcodeResponse = await CreateWechatCaptcha();
-        var checkScanRequest = new CheckScanRequest();
-        checkScanRequest.state = qRcodeResponse.Uuid;
+        var checkScanRequest = new CheckScanRequest
+        {
+            State = context.Uuid
+        };
 
         var timeout = TimeSpan.FromMinutes(5);
         var startTime = DateTime.UtcNow;
 
-        LoginResponse ticketResponse;
         CheckScanResponse checkScanResponse;
         while (true)
         {
             if (DateTime.UtcNow - startTime > timeout)
-            {
-                throw new TimeoutException("微信登录超时");
-            }
+                throw new TimeoutException("Qrcode scan timeout, please try again.");
 
             checkScanResponse = await gpnuClient.SendRequest(checkScanRequest);
+            progress?.Report(checkScanResponse.Meta);
             if (checkScanResponse.Data is null)
             {
-                await Task.Delay(1000);
+                await Task.Delay(1000, cancellationToken);
                 continue;
             }
             break;
         }
 
-        service = defaultService;
-        ticketResponse = await gpnuClient.SendRequest(new LoginRequest(checkScanResponse.Data.UserName, checkScanResponse.Data.Password, service));
+        service ??= defaultService;
+        var ticketResponse = await gpnuClient.SendRequest(new LoginRequest(checkScanResponse.Data.UserName, checkScanResponse.Data.Password, service));
         EnsureLoginSuccess(ticketResponse);
 
         IsLoggedIn = true;
@@ -62,7 +55,7 @@ public class CasHandler
 
         if (updateTgc)
         {
-            await Task.Delay(1000);
+            await Task.Delay(1000, cancellationToken);
             await UpdateWebAuthCookie(gpnuClient.client);
         }
 
@@ -70,24 +63,13 @@ public class CasHandler
         return (ticketResponse.Ticket!, ticketResponse.Tgt!);
     }
 
-    public async Task<CreateQRcodeResponse> CreateWechatCaptcha()
+    public async Task<WechatLoginContext> CreateWechatLoginContext()
     {
-        var qRcodeResponse = await gpnuClient.SendRequest(new CreateQRcodeRequest());
-        if (qRcodeResponse?.Content == null || qRcodeResponse.Content.Length == 0)
-        {
-            throw new InvalidOperationException("二维码内容为空或无效");
-        }
+        var qrCodeResponse = await gpnuClient.SendRequest(new CreateQRcodeRequest());
+        if (qrCodeResponse?.Content == null || qrCodeResponse.Content.Length == 0)
+            throw new InvalidDataException("Failed to create WeChat login QR code, response content is null or empty.");
 
-        var imageData = qRcodeResponse.Content;
-        const string filePath = "casWechatCaptcha.png";
-        File.Delete(filePath);
-        using (var fs = File.Create(filePath))
-        {
-            await fs.WriteAsync(imageData);
-            Console.WriteLine($"二维码已保存至: {Path.GetFullPath(filePath)}");
-        }
-
-        return qRcodeResponse;
+        return new WechatLoginContext(qrCodeResponse.Uuid, qrCodeResponse.Content);
     }
 
     public Task<CasCaptcha> GetPasswordLoginCaptcha()

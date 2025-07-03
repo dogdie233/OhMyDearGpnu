@@ -5,7 +5,7 @@ using OhMyDearGpnu.Api.StuAff.Requests;
 
 namespace OhMyDearGpnu.Api.StuAff.PartTimeJob.Requests;
 
-public abstract class QueryGridListRequest<TRes>(string token, string sign) : JsonApiRequestBase<Paged<TRes>>(token)
+public abstract class QueryGridListRequest<TRes>(string sign) : JsonApiRequestBase<Paged<TRes>>
 {
     [JsonIgnore] public override Uri Url => new(Hosts.stuAff, "qgzx/api/sm-work-study/proData/gridList");
     [JsonIgnore] public override HttpMethod HttpMethod => HttpMethod.Post;
