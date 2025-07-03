@@ -19,9 +19,9 @@ public partial class LoginRequest : BaseRequest<LoginResponse>
     [FormItem("username")] public string Username { get; init; }
     [FormItem("password")] private string? EncryptedPassword { get; set; }
     [FormItem("service")] public string Service { get; init; }
-    [FormItem("loginType")] public string LoginType => string.Empty;
+    [FormItem("loginType")] public string LoginType { get; set; }
     [FormItem("id")] private string Id { get; init; }
-    [FormItem("code")] public CasCaptcha Captcha { get; init; }
+    [FormItem("code")] public CasCaptcha? Captcha { get; init; }
 
     public override Uri Url => new(Hosts.cas, "lyuapServer/v1/tickets");
     public override HttpMethod HttpMethod => HttpMethod.Post;
@@ -37,16 +37,27 @@ public partial class LoginRequest : BaseRequest<LoginResponse>
     public LoginRequest(string username, string password, CasCaptcha captcha, string service)
     {
         Username = username;
+        LoginType = string.Empty;
         this.password = password;
         Captcha = captcha;
         Id = Captcha.uid.ToString("N");
         Service = service;
+        EncryptedPassword = EncryptHelper.CasPasswordEncrypt(password, publicExponent, modulus);
+    }
+
+    public LoginRequest(string username, string password, string service)
+    {
+        Username = username;
+        this.password = password;
+        Id = string.Empty;
+        LoginType = "3";
+        Service = service;
+        this.EncryptedPassword = password;
     }
 
     public override async ValueTask FillAutoFieldAsync(SimpleServiceContainer serviceContainer)
     {
         await base.FillAutoFieldAsync(serviceContainer);
-        EncryptedPassword = EncryptHelper.CasPasswordEncrypt(password, publicExponent, modulus);
     }
 
     public override async ValueTask<LoginResponse> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
