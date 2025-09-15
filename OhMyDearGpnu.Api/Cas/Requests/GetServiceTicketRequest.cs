@@ -16,8 +16,11 @@ public partial class GetServiceTicketRequest(string tgt, string service) : BaseR
 
     public override async ValueTask<string> CreateDataResponseAsync(SimpleServiceContainer serviceContainer, HttpResponseMessage responseMessage)
     {
-        responseMessage.EnsureSuccessStatusCode();
         var content = await responseMessage.Content.ReadAsStringAsync();
+        if (responseMessage.StatusCode == HttpStatusCode.InternalServerError && content.EndsWith("已失效"))
+            throw new TokenExpiredException("TGT has expired.", typeof(CasHandler));
+                        
+        responseMessage.EnsureSuccessStatusCode();
         if (string.IsNullOrEmpty(content))
             throw new UnexpectedResponseException("Empty response content.");
         return content;

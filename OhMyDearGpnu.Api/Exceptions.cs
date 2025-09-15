@@ -9,6 +9,7 @@ public class UnexpectedResponseException(string message) : Exception(message)
     }
 }
 
-public class WebAuthRequiredException : Exception
+public class TokenExpiredException(string message, Type scope) : Exception(message)
 {
+    public Type Scope => scope;
 }

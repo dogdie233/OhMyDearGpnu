@@ -88,7 +88,7 @@ public class RequestGenerator : IIncrementalGenerator
                                            partial class {{data.cls}}{{data.generic}}
                                            {
                                            #nullable enable
-                                               public override HttpContent? CreateHttpContent(SimpleServiceContainer serviceContainer)
+                                               public override HttpContent? CreateHttpContent(global::OhMyDearGpnu.Api.SimpleServiceContainer serviceContainer)
                                                {
                                                    {{createHttpContentBody}}
                                                }
