@@ -13,10 +13,10 @@ using Spectre.Console;
 
 RegistrationPiece[] registrationPieces =
 [
-    new RegistrationPiece(new TimeOnly(8, 20), new TimeOnly(9, 50), 2),
-    new RegistrationPiece(new TimeOnly(10, 0), new TimeOnly(12, 0), 2),
-    new RegistrationPiece(new TimeOnly(14, 0), new TimeOnly(15, 0), 1),
-    new RegistrationPiece(new TimeOnly(15, 0), new TimeOnly(17, 0), 2)
+    new(new TimeOnly(8, 20), new TimeOnly(9, 50), 2),
+    new(new TimeOnly(10, 0), new TimeOnly(12, 0), 2),
+    new(new TimeOnly(14, 0), new TimeOnly(15, 0), 1),
+    new(new TimeOnly(15, 0), new TimeOnly(17, 0), 2)
 ];
 
 var client = new GpnuClient();
@@ -75,10 +75,7 @@ if (config == null)
                     var stuAffContext = client.GetStuAffContext();
 
                     ctx.Status("正在获取你的勤工俭学岗位列表...");
-                    jobs = (await stuAffContext.GpnuClient.SendRequest(new QueryMyJobForWorkloadRegistrationRequest(stuAffContext.UserInfo.UserId)
-                    {
-                        Pagination = new PaginationModel(1, 114514)
-                    })).List;
+                    jobs = (await stuAffContext.GpnuClient.SendRequest(new QueryMyJobRequest(new PaginationModel(1, 114514)))).List;
                     AnsiConsole.MarkupLine("获取你的勤工俭学岗位列表[green]成功[/]");
                 });
         }
@@ -100,7 +97,7 @@ if (config == null)
                 .Title("请选择你要报工时的岗位")
                 .PageSize(10)
                 .MoreChoicesText("更多")
-                .AddChoices(jobs.Select(model => new JobOption(model)))
+                .AddChoices(jobs.Where(model => model.StatusCode == 1).Select(model => new JobOption(model)))
         ).Job;
 
         config.JobId = job.JobId;
@@ -139,6 +136,9 @@ try
         Exit();
     }
 
+    LogInfo("获取岗位开始/结束时间");
+    var jobInfo = (await stuAff.GpnuClient.SendRequest(new QueryMyJobRequest(new PaginationModel(1, 114514)))).List.First(j => j.JobId == config.JobId);
+
     LogInfo("正在获取已报时长");
     var months = (await client.SendRequest(new QuerySalaryRequest(config.JobId.ToString(), stuAff.UserInfo.UserId)
     {
@@ -156,6 +156,7 @@ try
     var restDays = holidays.FreeDays.Select(day => new DateOnly(dateNow.Year, 1, 1).AddDays(day - 1)).ToArray();
     var availableDays = Enumerable.Range(1, DateTime.DaysInMonth(dateNow.Year, dateNow.Month))
         .Select(day => new DateOnly(dateNow.Year, dateNow.Month, day))
+        .Where(date => date > DateOnly.FromDateTime(jobInfo.StartTime) && date < DateOnly.FromDateTime(jobInfo.EndTime))
         .Where(date => date is { DayOfWeek: >= DayOfWeek.Monday and <= DayOfWeek.Friday })
         .Except(restDays)
         .ToList();
@@ -199,7 +200,8 @@ try
     foreach (var item in items)
     {
         LogInfo("添加条目：" + item);
-        var request = PostWorkloadItemRequest.CreateInsertRequest(stuAff.Token, stuAff.UserInfo.UserId, config.JobId, item.day, registrationPieces[item.pieceIdx].StartTime, registrationPieces[item.pieceIdx].EndTime, registrationPieces[item.pieceIdx].WorkHours);
+        var request = PostWorkloadItemRequest.CreateInsertRequest(stuAff.Token, stuAff.UserInfo.UserId, config.JobId, item.day, registrationPieces[item.pieceIdx].StartTime, registrationPieces[item.pieceIdx].EndTime,
+            registrationPieces[item.pieceIdx].WorkHours);
         await stuAff.GpnuClient.SendRequest(request);
     }
 
@@ -214,16 +216,10 @@ catch (Exception e)
 
 #endregion
 
-[UnconditionalSuppressMessage("AOT", "IL3050:Calling members annotated with 'RequiresDynamicCodeAttribute' may break functionality when AOT compiling.", Justification = "<Pending>")]
-[UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
 static async Task WriteConfigAsync(string path, Config config)
 {
     await using var fs = File.Create(path);
-    await JsonSerializer.SerializeAsync(fs, config, options: new JsonSerializerOptions(JsonSerializerOptions.Default)
-    {
-        TypeInfoResolver = SourceGeneratedJsonContext.Default,
-        WriteIndented = true
-    });
+    await JsonSerializer.SerializeAsync(fs, config, SourceGeneratedJsonContext.Default.Config);
 }
 
 void LogInfo(string message)
@@ -286,4 +282,7 @@ internal class HolidayModel
 
 [JsonSerializable(typeof(Config))]
 [JsonSerializable(typeof(CalendarModel))]
-partial class SourceGeneratedJsonContext : JsonSerializerContext {}
+[JsonSourceGenerationOptions(WriteIndented = true)]
+internal partial class SourceGeneratedJsonContext : JsonSerializerContext
+{
+}

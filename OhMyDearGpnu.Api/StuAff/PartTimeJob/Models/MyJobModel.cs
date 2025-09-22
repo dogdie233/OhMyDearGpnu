@@ -26,11 +26,17 @@ public class MyJobModel
     // "SFM": "1", nullable
     [JsonPropertyName("SFM")] public string? SFM { get; set; }
     [JsonPropertyName("YXMC")] public string CollegeName { get; set; } = string.Empty;
-    [JsonPropertyName("KSSJ")] public string StartTime { get; set; } = string.Empty;
+
+    [JsonPropertyName("KSSJ")]
+    [JsonConverter(typeof(DateTimeConverter))]
+    public DateTime StartTime { get; set; }
+
     [JsonPropertyName("XNMC")] public string WorkYearName { get; set; } = string.Empty;
 
-    // "RZZTM": "1", nullable
-    [JsonPropertyName("RZZTM")] public string? RZZTM { get; set; }
+    [JsonPropertyName("RZZTM")]
+    [JsonConverter(typeof(NumberStringConverter<int>))]
+    public int StatusCode { get; set; }
+
     [JsonPropertyName("RZXQ")] public string WorkTermName { get; set; } = string.Empty;
     [JsonPropertyName("GWMC")] public string JobName { get; set; } = string.Empty;
 
@@ -56,5 +62,5 @@ public class MyJobModel
     [JsonPropertyName("ZT")] public string Status { get; set; } = string.Empty;
     [JsonPropertyName("BMMC")] public string DepartmentName { get; set; } = string.Empty;
     [JsonPropertyName("XSID")] public string StudentId { get; set; } = string.Empty;
-    [JsonPropertyName("XCZE")] public float Salary { get; set; }
+    [JsonPropertyName("XCZE")] public decimal Salary { get; set; }
 }

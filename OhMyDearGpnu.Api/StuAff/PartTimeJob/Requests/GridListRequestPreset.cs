@@ -4,6 +4,7 @@ using OhMyDearGpnu.Api.StuAff.PartTimeJob.Models;
 namespace OhMyDearGpnu.Api.StuAff.PartTimeJob.Requests;
 
 [Request(PayloadTypeEnum.Json)]
+[Obsolete("Use QueryMyJobRequest instead.")]
 public partial class QueryMyJobForWorkloadRegistrationRequest : QueryGridListRequest<MyJobModel>
 {
     public static readonly string presetSign = "zhxg_workStudy_djgzl_wdgw_table";
