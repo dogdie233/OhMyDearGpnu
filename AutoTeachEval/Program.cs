@@ -10,7 +10,7 @@ using Spectre.Console;
 
 var ansCache = new Dictionary<int, (List<SubjectAnswerModel>, int)>();
 
-var tgt = AnsiConsole.Ask<string>("请输入tgt(没有则输入n): ");
+var tgt = AnsiConsole.Ask<string>("请输入tgt(不知道这是什么或者没有这个则输入n): ");
 string? username = null;
 string? password = null;
 if (tgt == "n")
@@ -22,11 +22,11 @@ if (tgt == "n")
 }
 
 var selectionMode = AnsiConsole.Prompt(new SelectionPrompt<SelectionModePrompt>()
-        .Title("问卷的选择题处理方式")
+        .Title("问卷的选择题处理方式(上下键选择，回车确认)：")
         .PageSize(10)
         .AddChoices(new SelectionModePrompt(SelectionMode.HighScore, "自动选择高分选项"), new SelectionModePrompt(SelectionMode.Manual, "手动")))
     .Mode;
-var holdingText = AnsiConsole.Ask<string>("填空题默认填什么：", "老师人很好，下次还跟");
+var holdingText = AnsiConsole.Ask<string>("填空题默认填什么：", "(默认:老师人很好，下次还跟)");
 var delayFinish = AnsiConsole.Confirm("是否在两次问卷提交之间添加间隔");
 
 try
@@ -100,7 +100,8 @@ try
             }
         });
 
-    AnsiConsole.WriteLine("所有问卷已提交完成");
+    AnsiConsole.WriteLine("所有问卷已提交完成，按任意键退出");
+    Console.ReadKey();
 }
 catch (CasLoginFailException ex)
 {

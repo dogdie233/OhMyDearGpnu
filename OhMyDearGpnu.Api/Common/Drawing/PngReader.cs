@@ -3,6 +3,7 @@
 
 using System.Buffers.Binary;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using OhMyDearGpnu.Api.Utility;
@@ -147,7 +148,7 @@ internal class PngReader
         var result = new Rgba[height * width];
         var bytesPerPixel = 4; // RGBA
         var stride = width * bytesPerPixel;
-        var viewer = MemoryMarshal.Cast<Rgba, byte>(result);
+        var viewer = MemoryMarshal.Cast<Rgba, byte>(result.AsSpan());
 
         var dataIndex = 0;
         for (var y = 0; y < height; y++)
