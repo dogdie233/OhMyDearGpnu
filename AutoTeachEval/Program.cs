@@ -10,15 +10,35 @@ using Spectre.Console;
 
 var ansCache = new Dictionary<int, (List<SubjectAnswerModel>, int)>();
 
-var tgt = AnsiConsole.Ask<string>("请输入tgt(不知道这是什么或者没有这个则输入n): ");
-string? username = null;
-string? password = null;
-if (tgt == "n")
+string? username = AnsiConsole.Ask<string>("请输入你的学号(cas): ");
+string? password = password = AnsiConsole.Ask<string>("请输入你的密码(cas): ");
+if (username is not { Length: > 0 } || password is not { Length: > 0 })
+    ErrExit("用户名或密码不能为空");
+
+var client = new GpnuClient();
+var logon = true;
+await AnsiConsole.Status()
+    .StartAsync("正在登录...", async ctx => {
+        try
+        {
+            var captcha = await client.cas.GetPasswordLoginCaptcha();
+            await client.cas.LoginByPassword(username, password, captcha);
+
+            AnsiConsole.MarkupLine("Cas登录成功");
+        }
+        catch (CasLoginFailException)
+        {
+            ErrExit($"登录失败：{ex.Message}");
+            logon = false;
+        }
+    });
+
+if (!logon)
 {
-    username = AnsiConsole.Ask<string>("请输入你的用户名(cas): ");
-    password = AnsiConsole.Ask<string>("请输入你的密码(cas): ");
-    if (username is not { Length: > 0 } || password is not { Length: > 0 })
-        ErrExit("用户名或密码不能为空");
+    Console.WriteLine("程序已结束运行，按回车关闭窗口");
+    Console.ReadKey();
+    Environment.Exit(1);
+    return;
 }
 
 var selectionMode = AnsiConsole.Prompt(new SelectionPrompt<SelectionModePrompt>()
@@ -34,19 +54,6 @@ try
     await AnsiConsole.Status()
         .StartAsync("正在登录...", async ctx =>
         {
-            var client = new GpnuClient();
-            if (tgt != "n" && tgt != "")
-            {
-                await client.cas.LoginByTgt(tgt);
-            }
-            else if (username != null && password != null)
-            {
-                var captcha = await client.cas.GetPasswordLoginCaptcha();
-                await client.cas.LoginByPassword(username, password, captcha);
-            }
-
-            AnsiConsole.MarkupLine("Cas登录成功");
-
             var te = client.GetTeachEvalContext();
             AnsiConsole.MarkupLine("教育质量评价系统登录成功");
 
@@ -103,10 +110,7 @@ try
     AnsiConsole.WriteLine("所有问卷已提交完成，按任意键退出");
     Console.ReadKey();
 }
-catch (CasLoginFailException ex)
-{
-    ErrExit($"登录失败：{ex.Message}");
-}
+
 catch (Exception ex)
 {
     AnsiConsole.WriteException(ex);
