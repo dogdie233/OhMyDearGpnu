@@ -26,7 +26,7 @@ await AnsiConsole.Status()
 
             AnsiConsole.MarkupLine("Cas登录成功");
         }
-        catch (CasLoginFailException)
+        catch (CasLoginFailException ex)
         {
             ErrExit($"登录失败：{ex.Message}");
             logon = false;
