@@ -8,17 +8,24 @@ namespace OhMyDearGpnu.Api.TeachEval;
 public partial record QuestionnairePageUrl
 {
     public string QuestionnaireId { get; init; } = "undefined";
+
     public required string QuestionnaireTypeCode { get; init; } = "1";
+
     public required string QuestionnaireType { get; init; } = "Final";
+
     public required string TaskId { get; init; } = "1";
+
     public required string CurrentCourseCode { get; init; } = "114514";
+
     public required string Status { get; init; } = "UnFinished";
+
     public required string TaskStatus { get; init; } = "1";
+
     public string? Semester { get; init; }
 
     public override string ToString()
     {
-        return $"{Hosts.teachEval}index.html?v=3.25.0${ToFragment()}";
+        return $"{Hosts.teachEval}index.html?v=3.38.0${ToFragment()}";
     }
 
     public string ToFragment()

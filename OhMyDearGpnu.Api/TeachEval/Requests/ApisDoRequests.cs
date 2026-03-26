@@ -18,14 +18,18 @@ public class GetMyTaskItemByAnswerStatusRequest : ApisDoRequestPaged<TaskItemMod
     }
 
     public string Source { get; init; } = "pc";
+
     public string Status { get; init; } = "UnFinished";
+
     public int? EvaType { get; init; } = null;
+
     public string? EvaCode { get; init; } = null;
 
     [JsonConverter(typeof(BooleanNumberConverter))]
     public bool IsIncludeHistorySemester { get; init; } = true;
 
     [JsonIgnore] public string? Semester { get; init; }
+
     [JsonIgnore] string? ISystemParams.Semester => Semester;
 }
 
@@ -34,7 +38,9 @@ public class GetMyTaskItemDetailRequest(string taskId, string questionnaireType 
     [JsonIgnore] public override string ApiName => "Mycos.JP.MyTask.MyTask.GetMyTaskItemDeail";
 
     public string TaskId { get; } = taskId;
+
     public string EvaType { get; } = questionnaireTypeCode;
+
     public string EvaCode { get; } = questionnaireType;
 
     [JsonIgnore] string? ISystemParams.Semester { get; } = semester;
@@ -45,13 +51,13 @@ public class GetMyTaskItemDetailRequest(string taskId, string questionnaireType 
     }
 }
 
-public class GetPublicKeyRequest(QuestionnairePageUrl? page = null) : ApisDoRequest<LoginKeysModel>
+public class GetPublicKeyRequest(string? originPage = null) : ApisDoRequest<LoginKeysModel>
 {
     [JsonIgnore] public override string ApiName => "Mycos.JP.Login.GetPublicKey";
 
     public override string BuildRequestOriginPageAddress(SystemParamsModel model)
     {
-        return page?.ToString() ?? $"{Hosts.teachEval}index.html?v=3.25.0#/login";
+        return originPage ?? $"{Hosts.teachEval}index.html?v=3.25.0#/login";
     }
 }
 
@@ -63,10 +69,15 @@ public class GetFinalQuestionnaireHeaderRequest(QuestionnairePageUrl page, strin
     [JsonIgnore] public override string ApiName => "Mycos.JP.Questionnaire.GetFinalQuestionnaireHeader";
 
     public string QuestionnaireId { get; } = page.QuestionnaireId;
+
     public string QId => QuestionnaireId;
+
     public string TaskId { get; } = page.TaskId;
+
     public string PersonCode { get; } = personCode;
+
     public string CourseCode { get; } = courseCode;
+
     public string QuestionnaireType { get; } = page.QuestionnaireType;
 
     [JsonIgnore] string? ISystemParams.Semester { get; } = page.Semester;
@@ -84,6 +95,7 @@ public class GetQuestionnaireRequest(QuestionnairePageUrl page) : ApisDoRequest<
     [JsonIgnore] public override string ApiName => "Mycos.JP.Questionnaire.GetQuestionnaire";
 
     public string QuestionnaireType { get; } = page.QuestionnaireType;
+
     [JsonPropertyName("Id")] public string QuestionnaireId { get; } = page.QuestionnaireId;
 
     public override string BuildRequestOriginPageAddress(SystemParamsModel model)
@@ -95,16 +107,23 @@ public class GetQuestionnaireRequest(QuestionnairePageUrl page) : ApisDoRequest<
 public class SaveQuestionnaireAnswerRequest(QuestionnairePageUrl page) : ApisDoRequest<bool>, ISystemParams
 {
     private readonly string _originPage = page.ToString();
+
     [JsonIgnore] public override string ApiName => "Mycos.JP.Questionnaire.SaveAnswer";
 
     public required int DetailId { get; init; }
+
     public string QuestionnaireId { get; } = page.QuestionnaireId;
+
     public string QuestionnaireType { get; } = page.QuestionnaireType;
 
     public required int Version { get; init; }
+
     public required string PersonCode { get; init; }
+
     public required int TotalAnsweredSecond { get; init; }
+
     public int ClientType { get; set; } = 0;
+
     public required List<SubjectAnswerModel> Subjects { get; init; }
 
     [JsonConverter(typeof(BooleanNumberConverter))]
@@ -125,7 +144,7 @@ public class SaveQuestionnaireAnswerRequest(QuestionnairePageUrl page) : ApisDoR
             return;
 
         var context = serviceContainer.Locate<TeachEvalContext>();
-        var key = await context.GpnuClient.SendRequest(new GetPublicKeyRequest(page));
+        var key = await context.GpnuClient.SendRequest(new GetPublicKeyRequest(page.ToString()));
         var publicExponent = Convert.FromHexString(key.PublicKey);
         var publicModulus = Convert.FromHexString(key.PublicValue);
         AuthKey = EncryptHelper.TeachEvalSaveEncrypt($"{DetailId}&{PersonCode}", publicExponent, publicModulus);

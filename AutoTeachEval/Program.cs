@@ -8,17 +8,16 @@ using OhMyDearGpnu.Api.TeachEval.Requests;
 
 using Spectre.Console;
 
-var ansCache = new Dictionary<int, (List<SubjectAnswerModel>, int)>();
-
-string? username = AnsiConsole.Ask<string>("请输入你的学号(cas): ");
-string? password = password = AnsiConsole.Ask<string>("请输入你的密码(cas): ");
+var username = AnsiConsole.Ask<string>("请输入你的学号(cas): ");
+var password = AnsiConsole.Ask<string>("请输入你的密码(cas): ");
 if (username is not { Length: > 0 } || password is not { Length: > 0 })
     ErrExit("用户名或密码不能为空");
 
 var client = new GpnuClient();
 var logon = true;
 await AnsiConsole.Status()
-    .StartAsync("正在登录...", async ctx => {
+    .StartAsync("正在登录...", async ctx =>
+    {
         try
         {
             var captcha = await client.cas.GetPasswordLoginCaptcha();
@@ -63,43 +62,105 @@ try
             AnsiConsole.MarkupLine($"获取到 [yellow]{taskItems.Count}[/] 个任务项");
             foreach (var taskItem in taskItems)
             {
-                var url = QuestionnairePageUrl.CreateFromTaskItem(taskItem);
                 AnsiConsole.MarkupLine($"正在获取任务项 [yellow]{taskItem.QuestionnaireName}[/] 的课程列表");
-                while (true)
+                if (taskItem.EvaType == 8)
                 {
-                    var taskItemDetails = (await client.SendRequest(new GetMyTaskItemDetailRequest(taskItem.TaskId))).Items;
-                    if (taskItemDetails is null or { Count: 0 })
-                        break;
-
-                    Console.WriteLine($"获取到 {taskItemDetails.Count} 个课程项");
-                    foreach (var taskItemDetail in taskItemDetails)
+                    var paged = new PagedReqModel();
+                    while (true)
                     {
-                        url = url.With(taskItemDetail);
-                        ctx.Status = $"正在获取课程 [yellow]{taskItemDetail.CourseName}[/] 的信息";
-                        var header = await client.SendRequest(new GetFinalQuestionnaireHeaderRequest(url, taskItemDetail.PersonCode, taskItemDetail.CourseCode));
-                        var questionnaire = await client.SendRequest(new GetQuestionnaireRequest(url));
-
-                        ctx.Status = "正在处理问卷";
-                        var teachers = header.CourseList.SelectMany(c => c.TeacherList);
-                        foreach (var teacher in teachers)
+                        var studentTasks = (await client.SendRequest(new GetStudentTaskListAsyncRequest(QuestionnairePageUrl.CreateFromTaskItem(taskItem), taskItem.QuestionnaireId, te.UserInfo.Code, 0, "")
                         {
-                            var (answer, second) = SolveQuestionnaire(questionnaire);
-                            var success = await client.SendRequest(new SaveQuestionnaireAnswerRequest(url)
+                            Paged = paged
+                        })).Items;
+                        var skipCount = 0;
+                        if (studentTasks is null or { Count: 0 } || studentTasks.All(task => task.EvaluationCount > 0))
+                            break;
+
+                        Console.WriteLine($"获取到 {studentTasks.Count} 个问卷");
+                        foreach (var studentTask in studentTasks)
+                        {
+                            if (studentTask.EvaluationCount > 0)
                             {
-                                DetailId = teacher.DetailId,
+                                skipCount++;
+                                continue;
+                            }
+
+                            var url = StudentQuestionnairePageUrl.CreateFromStudentTask(studentTask);
+                            ctx.Status = $"正在获取课程 [yellow]{studentTask.CourseName}[/] 的信息";
+                            var header = await client.SendRequest(new GetStudentQuestionnaireHeaderAsyncRequest(url, te.UserInfo.Code));
+                            var questionnaire = await client.SendRequest(new GetQuestionnaireAsyncRequest(url, studentTask.QuestionnaireId, studentTask.TypeCode));
+                            AnsiConsole.WriteLine($"课程：{studentTask.CourseName}，教师名字：{studentTask.TeacherName}");
+
+                            ctx.Status = "正在处理问卷";
+                            var answer = SolveQuestionnaire(questionnaire);
+                            var second = delayFinish ? 0 : Random.Shared.Next(2000, 5000) * answer.Count / 1000;
+                            var success = await client.SendRequest(new SaveAnswerAsyncRequest(url)
+                            {
+                                DetailId = header.DetailId,
                                 Version = header.Version,
                                 PersonCode = te.UserInfo.Code,
                                 TotalAnsweredSecond = second,
-                                Subjects = answer
+                                Subjects = answer,
+                                ResultId = header.ResultId
                             });
                             AnsiConsole.MarkupLine(!success
-                                ? $"[red]N[/]教师：{teacher.TeacherName}({teacher.TeacherCode})的问卷({teacher.DetailId})提交失败"
-                                : $"[green]Y[/]教师：{teacher.TeacherName}({teacher.TeacherCode})的问卷({teacher.DetailId})提交成功");
+                                ? $"[red]N[/]课程：{studentTask.CourseName}的问卷提交失败"
+                                : $"[green]Y[/]课程：{studentTask.CourseName}的问卷提交成功");
 
                             if (delayFinish)
                             {
-                                AnsiConsole.MarkupLine($"等待 {second} 秒后继续下一个问卷");
-                                await Task.Delay(second);
+                                var delaySecond = second * 1000 + Random.Shared.Next(2000, 5000);
+                                AnsiConsole.MarkupLine($"等待 {delaySecond / 1000} 秒后继续下一个问卷");
+                                await Task.Delay(delaySecond);
+                            }
+
+                            break;
+                        }
+
+                        paged.PageIndex += skipCount;
+                    }
+                }
+                else
+                {
+                    var url = QuestionnairePageUrl.CreateFromTaskItem(taskItem);
+                    while (true)
+                    {
+                        var taskItemDetails = (await client.SendRequest(new GetMyTaskItemDetailRequest(taskItem.TaskId))).Items;
+                        if (taskItemDetails is null or { Count: 0 })
+                            break;
+
+                        Console.WriteLine($"获取到 {taskItemDetails.Count} 个课程项");
+                        foreach (var taskItemDetail in taskItemDetails)
+                        {
+                            url = url.With(taskItemDetail);
+                            ctx.Status = $"正在获取课程 [yellow]{taskItemDetail.CourseName}[/] 的信息";
+                            var header = await client.SendRequest(new GetFinalQuestionnaireHeaderRequest(url, taskItemDetail.PersonCode, taskItemDetail.CourseCode));
+                            var questionnaire = await client.SendRequest(new GetQuestionnaireRequest(url));
+
+                            ctx.Status = "正在处理问卷";
+                            var teachers = header.CourseList.SelectMany(c => c.TeacherList);
+                            foreach (var teacher in teachers)
+                            {
+                                var answer = SolveQuestionnaire(questionnaire);
+                                var second = delayFinish ? 0 : Random.Shared.Next(2000, 5000) * answer.Count / 1000;
+                                var success = await client.SendRequest(new SaveQuestionnaireAnswerRequest(url)
+                                {
+                                    DetailId = teacher.DetailId,
+                                    Version = header.Version,
+                                    PersonCode = te.UserInfo.Code,
+                                    TotalAnsweredSecond = second,
+                                    Subjects = answer
+                                });
+                                AnsiConsole.MarkupLine(!success
+                                    ? $"[red]N[/]教师：{teacher.TeacherName}({teacher.TeacherCode})的问卷({teacher.DetailId})提交失败"
+                                    : $"[green]Y[/]教师：{teacher.TeacherName}({teacher.TeacherCode})的问卷({teacher.DetailId})提交成功");
+
+                                if (delayFinish)
+                                {
+                                    var delaySecond = second * 1000 + Random.Shared.Next(2000, 5000);
+                                    AnsiConsole.MarkupLine($"等待 {delaySecond / 1000} 秒后继续下一个问卷");
+                                    await Task.Delay(delaySecond);
+                                }
                             }
                         }
                     }
@@ -120,20 +181,13 @@ catch (Exception ex)
 
 return;
 
-(List<SubjectAnswerModel> answer, int second) SolveQuestionnaire(QuestionnaireModel questionnaire)
+List<SubjectAnswerModel> SolveQuestionnaire(QuestionnaireModel questionnaire)
 {
-    if (ansCache.TryGetValue(questionnaire.Id, out var value))
-    {
-        value.Item2 += Random.Shared.Next(-value.Item2 / 2, value.Item2 / 2);
-        return value;
-    }
-
     var sortedItems = questionnaire.PositionOrder is { Count: > 0 }
         ? questionnaire.PositionOrder.Select(id => questionnaire.Items.FirstOrDefault(i => i.Id == id)
                                                    ?? throw new InvalidOperationException($"找不到ID为{id}的问卷项")).ToList()
         : questionnaire.Items;
     var answer = new List<SubjectAnswerModel>();
-    var startTime = DateTime.Now;
 
     AnsiConsole.WriteLine($"你需要先手动完成一次此问卷({questionnaire.Id})");
     foreach (var item in sortedItems)
@@ -183,10 +237,7 @@ return;
                 throw new InvalidOperationException($"不支持的问卷项类型：{item.SubjectType}，找开发者（");
         }
 
-    var endTime = DateTime.Now;
-    var second = (int)(endTime - startTime).TotalSeconds;
-    ansCache[questionnaire.Id] = (answer, second);
-    return (answer, second);
+    return answer;
 }
 
 [DoesNotReturn]

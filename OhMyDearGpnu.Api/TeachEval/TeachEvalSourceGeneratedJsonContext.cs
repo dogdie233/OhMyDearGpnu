@@ -23,6 +23,12 @@ namespace OhMyDearGpnu.Api.TeachEval;
 [JsonSerializable(typeof(GetQuestionnaireRequest))]
 [JsonSerializable(typeof(QuestionnaireModel))]
 [JsonSerializable(typeof(SaveQuestionnaireAnswerRequest))]
+[JsonSerializable(typeof(GetStudentTaskListAsyncRequest))]
+[JsonSerializable(typeof(List<StudentTaskModel>))]
+[JsonSerializable(typeof(GetStudentQuestionnaireHeaderAsyncRequest))]
+[JsonSerializable(typeof(StudentQuestionnaireHeaderModel))]
+[JsonSerializable(typeof(GetQuestionnaireAsyncRequest))]
+[JsonSerializable(typeof(SaveAnswerAsyncRequest))]
 [JsonSourceGenerationOptions(JsonSerializerDefaults.General, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 internal partial class TeachEvalSourceGeneratedJsonContext : JsonSerializerContext
 {
