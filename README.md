@@ -50,3 +50,9 @@ Console.WriteLine($"本周为第{calendar.CurrentWeek}周");
 
 ## OhMyDearGpnu.Api.SourceGenerator
 用到的源生成器
+
+## ParttimeJobReporter
+自动填报勤工俭学的工时，自动选择非节假日填满30小时
+
+## AutoTeachEval
+自动填写教学质量评价，默认全给最高分，填空题用同一个输入
